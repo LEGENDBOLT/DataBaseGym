@@ -323,6 +323,49 @@
             min-height: 80px;
         }
 
+        /* Input with button */
+        .input-with-btn {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-with-btn input {
+            flex: 1;
+        }
+
+        .select-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .select-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Suggestion Badge */
+        .suggestion-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-top: 8px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .suggestion-badge.show {
+            display: block;
+        }
+
         /* Buttons */
         .btn {
             padding: 12px 24px;
@@ -360,6 +403,209 @@
 
         .btn-block {
             width: 100%;
+        }
+
+        /* Modal/Popup */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 30px 30px 0 0;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 70vh;
+            overflow-y: auto;
+            animation: slideUpModal 0.3s ease;
+        }
+
+        @keyframes slideUpModal {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: all 0.3s ease;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            transform: rotate(90deg);
+            color: var(--danger);
+        }
+
+        /* Selection List */
+        .selection-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .selection-item {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .selection-item:hover {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(127, 75, 162, 0.1) 100%);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .selection-item.selected {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(127, 75, 162, 0.2) 100%);
+            border-color: var(--primary);
+        }
+
+        .selection-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .selection-item-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 16px;
+        }
+
+        .selection-item-date {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .selection-item-details {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .selection-item-detail {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Search Box */
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Add New Button */
+        .add-new-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .add-new-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Day Divider */
+        .day-divider {
+            position: relative;
+            text-align: center;
+            margin: 30px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .day-divider-line {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #667eea, #764ba2, transparent);
+            border-radius: 3px;
+            margin: 20px 0;
+        }
+
+        .day-divider-text {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 600;
+            color: var(--dark);
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
+        }
+
+        .day-divider-date {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 5px;
         }
 
         /* Exercise List */
@@ -403,7 +649,7 @@
 
         .exercise-details {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             margin-bottom: 10px;
         }
@@ -438,9 +684,10 @@
             background: white;
             border-radius: 20px;
             padding: 20px;
+            padding-bottom: 40px;
             margin-top: 20px;
             box-shadow: var(--shadow);
-            height: 300px;
+            height: 350px;
             position: relative;
         }
 
@@ -474,7 +721,7 @@
         /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr;
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -577,21 +824,6 @@
         .new-item {
             animation: bounceIn 0.6s ease;
         }
-
-        /* Debug panel */
-        .debug-panel {
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-size: 12px;
-            display: none;
-        }
-
-        .debug-panel.show {
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -644,16 +876,32 @@
             <div id="workoutSection" class="content-section active">
                 <div class="card">
                     <h2 style="margin-bottom: 20px; color: var(--dark);">Nuovo Esercizio</h2>
+                    
+                    <!-- Day Name Input -->
+                    <div class="form-group">
+                        <label for="dayName">Nome della Giornata (opzionale)</label>
+                        <div class="input-with-btn">
+                            <input type="text" id="dayName" placeholder="Es: Leg Day, Push Day...">
+                            <button type="button" class="select-btn" onclick="openDayNameModal()">📋 Scegli</button>
+                        </div>
+                    </div>
+
                     <form id="exerciseForm">
                         <div class="form-group">
                             <label for="exerciseName">Nome Esercizio</label>
-                            <input type="text" id="exerciseName" placeholder="Es: Panca piana" required>
+                            <div class="input-with-btn">
+                                <input type="text" id="exerciseName" placeholder="Es: Panca piana" required>
+                                <button type="button" class="select-btn" onclick="openExerciseModal()">🏋️ Scegli</button>
+                            </div>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div class="form-group">
                                 <label for="weight">Peso (kg)</label>
                                 <input type="number" id="weight" step="0.5" placeholder="50" required>
+                                <div id="weightSuggestion" class="suggestion-badge">
+                                    💡 Suggerimento: <span id="suggestedWeight"></span> kg
+                                </div>
                             </div>
                             
                             <div class="form-group">
@@ -709,10 +957,6 @@
                         <div class="stat-value" id="totalWorkouts">0</div>
                         <div class="stat-label">Allenamenti Totali</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="totalWeight">0</div>
-                        <div class="stat-label">Kg Totali Sollevati</div>
-                    </div>
                 </div>
 
                 <!-- Exercise Selector -->
@@ -734,11 +978,45 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Debug Panel (nascosto di default) -->
-        <div id="debugPanel" class="debug-panel">
-            <h4>Debug Info:</h4>
-            <div id="debugInfo"></div>
+    <!-- Exercise Selection Modal -->
+    <div id="exerciseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🏋️ Seleziona Esercizio</h3>
+                <button class="close-modal" onclick="closeModal('exerciseModal')">×</button>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="exerciseSearch" placeholder="🔍 Cerca esercizio..." onkeyup="filterExercises()">
+            </div>
+
+            <button class="add-new-btn" onclick="addNewExercise()">➕ Aggiungi Nuovo Esercizio</button>
+            
+            <div class="selection-list" id="exerciseList">
+                <!-- Exercise items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Day Name Selection Modal -->
+    <div id="dayNameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📅 Seleziona Nome Giornata</h3>
+                <button class="close-modal" onclick="closeModal('dayNameModal')">×</button>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="dayNameSearch" placeholder="🔍 Cerca o inserisci nuovo nome..." onkeyup="filterDayNames()">
+            </div>
+
+            <button class="add-new-btn" onclick="addNewDayName()">➕ Usa Questo Nome</button>
+            
+            <div class="selection-list" id="dayNameList">
+                <!-- Day name items will be populated here -->
+            </div>
         </div>
     </div>
 
@@ -763,6 +1041,9 @@
         
         let currentUser = null;
         let progressChart = null;
+        let exerciseHistory = [];
+        let uniqueExercises = {};
+        let uniqueDayNames = new Set();
 
         // Helper function per formattare la data
         function formatDate(date) {
@@ -803,6 +1084,7 @@
                 // Load initial data
                 loadTodayExercises();
                 loadStats();
+                loadExerciseHistoryData();
                 
                 console.log('User logged in:', user.uid);
             } else {
@@ -847,6 +1129,273 @@
             }
         }
 
+        // Modal Functions
+        function openExerciseModal() {
+            loadExerciseList();
+            document.getElementById('exerciseModal').classList.add('active');
+        }
+
+        function openDayNameModal() {
+            loadDayNameList();
+            document.getElementById('dayNameModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Load Exercise List for Modal
+        function loadExerciseList() {
+            const exerciseList = document.getElementById('exerciseList');
+            exerciseList.innerHTML = '';
+            
+            // Group exercises by name and get latest data for each
+            const exerciseGroups = {};
+            exerciseHistory.forEach(exercise => {
+                if (!exercise.name) return;
+                if (!exerciseGroups[exercise.name] || exerciseGroups[exercise.name].timestamp < exercise.timestamp) {
+                    exerciseGroups[exercise.name] = exercise;
+                }
+            });
+            
+            // Sort by name
+            const sortedExercises = Object.values(exerciseGroups).sort((a, b) => a.name.localeCompare(b.name));
+            
+            if (sortedExercises.length === 0) {
+                exerciseList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <div class="empty-text">Nessun esercizio salvato</div>
+                        <div class="empty-subtext">Inizia ad aggiungere nuovi esercizi!</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            sortedExercises.forEach(exercise => {
+                const item = document.createElement('div');
+                item.className = 'selection-item';
+                item.innerHTML = `
+                    <div class="selection-item-header">
+                        <div class="selection-item-name">${exercise.name}</div>
+                        <div class="selection-item-date">${exercise.dateString || ''}</div>
+                    </div>
+                    <div class="selection-item-details">
+                        <div class="selection-item-detail">
+                            <span>💪</span>
+                            <span>${exercise.weight} kg</span>
+                        </div>
+                        <div class="selection-item-detail">
+                            <span>🔄</span>
+                            <span>${exercise.reps} reps</span>
+                        </div>
+                        <div class="selection-item-detail">
+                            <span>📊</span>
+                            <span>${exercise.sets} serie</span>
+                        </div>
+                    </div>
+                `;
+                item.onclick = () => selectExercise(exercise);
+                exerciseList.appendChild(item);
+            });
+        }
+
+        // Filter Exercises in Modal
+        function filterExercises() {
+            const searchTerm = document.getElementById('exerciseSearch').value.toLowerCase();
+            const items = document.querySelectorAll('#exerciseList .selection-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.selection-item-name').textContent.toLowerCase();
+                if (name.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Select Exercise from Modal
+        function selectExercise(exercise) {
+            document.getElementById('exerciseName').value = exercise.name;
+            
+            // Check if should suggest weight increase
+            if (exercise.reps >= 8) {
+                const suggestedWeight = calculateWeightSuggestion(exercise.weight, exercise.reps);
+                document.getElementById('suggestedWeight').textContent = suggestedWeight;
+                document.getElementById('weightSuggestion').classList.add('show');
+                document.getElementById('weight').value = suggestedWeight;
+            } else {
+                document.getElementById('weight').value = exercise.weight;
+                document.getElementById('weightSuggestion').classList.remove('show');
+            }
+            
+            document.getElementById('reps').value = exercise.reps;
+            document.getElementById('sets').value = exercise.sets;
+            
+            closeModal('exerciseModal');
+            showToast('✅ Esercizio selezionato', 'success');
+        }
+
+        // Add New Exercise from Modal
+        function addNewExercise() {
+            const searchValue = document.getElementById('exerciseSearch').value.trim();
+            if (searchValue) {
+                document.getElementById('exerciseName').value = searchValue;
+                closeModal('exerciseModal');
+                showToast('✅ Nuovo esercizio aggiunto', 'success');
+            } else {
+                showToast('⚠️ Inserisci il nome dell\'esercizio', 'error');
+            }
+        }
+
+        // Load Day Name List for Modal
+        function loadDayNameList() {
+            const dayNameList = document.getElementById('dayNameList');
+            dayNameList.innerHTML = '';
+            
+            if (uniqueDayNames.size === 0) {
+                dayNameList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📅</div>
+                        <div class="empty-text">Nessun nome salvato</div>
+                        <div class="empty-subtext">Inserisci un nuovo nome per la giornata!</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            Array.from(uniqueDayNames).sort().forEach(name => {
+                const item = document.createElement('div');
+                item.className = 'selection-item';
+                item.innerHTML = `
+                    <div class="selection-item-header">
+                        <div class="selection-item-name">📋 ${name}</div>
+                    </div>
+                `;
+                item.onclick = () => selectDayName(name);
+                dayNameList.appendChild(item);
+            });
+        }
+
+        // Filter Day Names in Modal
+        function filterDayNames() {
+            const searchTerm = document.getElementById('dayNameSearch').value.toLowerCase();
+            const items = document.querySelectorAll('#dayNameList .selection-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.selection-item-name').textContent.toLowerCase();
+                if (name.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Select Day Name from Modal
+        function selectDayName(name) {
+            document.getElementById('dayName').value = name;
+            closeModal('dayNameModal');
+            showToast('✅ Nome giornata selezionato', 'success');
+        }
+
+        // Add New Day Name from Modal
+        function addNewDayName() {
+            const searchValue = document.getElementById('dayNameSearch').value.trim();
+            if (searchValue) {
+                document.getElementById('dayName').value = searchValue;
+                closeModal('dayNameModal');
+                showToast('✅ Nome giornata impostato', 'success');
+            } else {
+                showToast('⚠️ Inserisci un nome per la giornata', 'error');
+            }
+        }
+
+        // Load exercise history data for suggestions
+        async function loadExerciseHistoryData() {
+            if (!currentUser) return;
+            
+            try {
+                const snapshot = await db.collection('exercises')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+                
+                exerciseHistory = [];
+                uniqueExercises = {};
+                uniqueDayNames = new Set();
+                
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    exerciseHistory.push(data);
+                    
+                    if (data.name) {
+                        if (!uniqueExercises[data.name] || uniqueExercises[data.name].timestamp < data.timestamp) {
+                            uniqueExercises[data.name] = data;
+                        }
+                    }
+                    
+                    if (data.dayName) {
+                        uniqueDayNames.add(data.dayName);
+                    }
+                });
+                
+                console.log('Loaded exercise history:', exerciseHistory.length, 'exercises');
+                
+            } catch (error) {
+                console.error('Error loading exercise history:', error);
+            }
+        }
+
+        // Calculate weight suggestion
+        function calculateWeightSuggestion(lastWeight, lastReps) {
+            if (lastReps >= 8) {
+                let increase = lastWeight < 50 ? 0.02 : 0.025; // 2% if < 50kg, 2.5% if >= 50kg
+                let suggestedWeight = lastWeight * (1 + increase);
+                // Round to nearest 0.5
+                return Math.round(suggestedWeight * 2) / 2;
+            }
+            return lastWeight;
+        }
+
+        // Update weight suggestion when exercise name changes manually
+        document.getElementById('exerciseName').addEventListener('input', function() {
+            const exerciseName = this.value.trim();
+            if (!exerciseName) {
+                document.getElementById('weightSuggestion').classList.remove('show');
+                return;
+            }
+            
+            // Find exercise in history
+            if (uniqueExercises[exerciseName]) {
+                const exercise = uniqueExercises[exerciseName];
+                
+                if (exercise.reps >= 8) {
+                    const suggestedWeight = calculateWeightSuggestion(exercise.weight, exercise.reps);
+                    document.getElementById('suggestedWeight').textContent = suggestedWeight;
+                    document.getElementById('weightSuggestion').classList.add('show');
+                    document.getElementById('weight').value = suggestedWeight;
+                } else {
+                    document.getElementById('weight').value = exercise.weight;
+                    document.getElementById('weightSuggestion').classList.remove('show');
+                }
+                
+                document.getElementById('reps').value = exercise.reps;
+                document.getElementById('sets').value = exercise.sets;
+            } else {
+                document.getElementById('weightSuggestion').classList.remove('show');
+            }
+        });
+
         // Exercise Form Submit
         document.getElementById('exerciseForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -864,6 +1413,7 @@
                 reps: parseInt(document.getElementById('reps').value),
                 sets: parseInt(document.getElementById('sets').value),
                 comment: document.getElementById('comment').value.trim(),
+                dayName: document.getElementById('dayName').value.trim(),
                 timestamp: now.getTime(),
                 dateString: formatDate(now),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -876,10 +1426,17 @@
                 console.log('Exercise saved with ID:', docRef.id);
                 showToast('✅ Esercizio aggiunto!', 'success');
                 document.getElementById('exerciseForm').reset();
+                document.getElementById('weightSuggestion').classList.remove('show');
+                
+                // Keep day name if it exists
+                if (exerciseData.dayName) {
+                    document.getElementById('dayName').value = exerciseData.dayName;
+                }
                 
                 // Reload data
                 loadTodayExercises();
                 loadStats();
+                loadExerciseHistoryData();
             } catch (error) {
                 console.error('Error adding exercise:', error);
                 showToast('❌ Errore nel salvataggio: ' + error.message, 'error');
@@ -944,7 +1501,7 @@
             try {
                 const snapshot = await db.collection('exercises')
                     .where('userId', '==', currentUser.uid)
-                    .limit(50)
+                    .limit(100)
                     .get();
                 
                 console.log('History exercises found:', snapshot.size);
@@ -960,16 +1517,52 @@
                     return;
                 }
                 
-                // Sort exercises by timestamp
-                const exercises = [];
+                // Sort exercises by timestamp and group by date
+                const exercisesByDate = {};
                 snapshot.forEach((doc) => {
-                    exercises.push({ id: doc.id, ...doc.data() });
+                    const data = { id: doc.id, ...doc.data() };
+                    const date = data.dateString || 'Data sconosciuta';
+                    if (!exercisesByDate[date]) {
+                        exercisesByDate[date] = {
+                            exercises: [],
+                            dayName: data.dayName || ''
+                        };
+                    }
+                    exercisesByDate[date].exercises.push(data);
+                    if (data.dayName) {
+                        exercisesByDate[date].dayName = data.dayName;
+                    }
                 });
-                exercises.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                
+                // Sort dates in descending order
+                const sortedDates = Object.keys(exercisesByDate).sort((a, b) => {
+                    const dateA = a.split('/').reverse().join('');
+                    const dateB = b.split('/').reverse().join('');
+                    return dateB.localeCompare(dateA);
+                });
                 
                 historyDiv.innerHTML = '';
-                exercises.forEach((exercise) => {
-                    historyDiv.innerHTML += createExerciseCard(exercise, exercise.id);
+                sortedDates.forEach((date, index) => {
+                    const dayData = exercisesByDate[date];
+                    
+                    // Add day divider
+                    historyDiv.innerHTML += `
+                        <div class="day-divider">
+                            <div class="day-divider-line"></div>
+                            <div class="day-divider-text">
+                                ${dayData.dayName ? `🏋️ ${dayData.dayName}` : '📅 Allenamento'}
+                                <div class="day-divider-date">${date}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Sort exercises by timestamp
+                    dayData.exercises.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    
+                    // Add exercises
+                    dayData.exercises.forEach((exercise) => {
+                        historyDiv.innerHTML += createExerciseCard(exercise, exercise.id);
+                    });
                 });
             } catch (error) {
                 console.error('Error loading history:', error);
@@ -980,7 +1573,6 @@
 
         // Create Exercise Card
         function createExerciseCard(exercise, id) {
-            const volume = exercise.weight * exercise.reps * exercise.sets;
             return `
                 <div class="exercise-item new-item">
                     <div class="exercise-header">
@@ -1000,12 +1592,7 @@
                             <span class="detail-label">Serie:</span>
                             <span class="detail-value">${exercise.sets}</span>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Volume:</span>
-                            <span class="detail-value">${volume.toFixed(1)} kg</span>
-                        </div>
                     </div>
-                    <div class="exercise-date">📅 ${exercise.dateString || 'Data non disponibile'}</div>
                     ${exercise.comment ? `<div class="exercise-comment">💭 ${exercise.comment}</div>` : ''}
                 </div>
             `;
@@ -1026,6 +1613,7 @@
                 loadTodayExercises();
                 loadExerciseHistory();
                 loadStats();
+                loadExerciseHistoryData();
             } catch (error) {
                 console.error('Error deleting exercise:', error);
                 showToast('❌ Errore nell\'eliminazione: ' + error.message, 'error');
@@ -1044,21 +1632,17 @@
                     .get();
                 
                 const workoutDays = new Set();
-                let totalWeight = 0;
                 
                 snapshot.forEach((doc) => {
                     const exercise = doc.data();
                     if (exercise.dateString) {
                         workoutDays.add(exercise.dateString);
                     }
-                    const volume = (exercise.weight || 0) * (exercise.reps || 0) * (exercise.sets || 0);
-                    totalWeight += volume;
                 });
                 
                 document.getElementById('totalWorkouts').textContent = workoutDays.size;
-                document.getElementById('totalWeight').textContent = Math.round(totalWeight).toLocaleString('it-IT');
                 
-                console.log('Stats loaded - Workouts:', workoutDays.size, 'Total weight:', totalWeight);
+                console.log('Stats loaded - Workouts:', workoutDays.size);
             } catch (error) {
                 console.error('Error loading stats:', error);
                 showToast('❌ Errore nel caricamento delle statistiche', 'error');
@@ -1119,13 +1703,10 @@
                 
                 const labels = [];
                 const weights = [];
-                const volumes = [];
                 
                 exercises.forEach((exercise) => {
                     labels.push(exercise.dateString || 'N/A');
                     weights.push(exercise.weight || 0);
-                    const volume = (exercise.weight || 0) * (exercise.reps || 0) * (exercise.sets || 0);
-                    volumes.push(volume);
                 });
                 
                 const ctx = document.getElementById('progressChart').getContext('2d');
@@ -1150,22 +1731,7 @@
                                 pointBorderColor: '#fff',
                                 pointBorderWidth: 2,
                                 pointRadius: 6,
-                                pointHoverRadius: 8,
-                                yAxisID: 'y'
-                            },
-                            {
-                                label: 'Volume (kg totali)',
-                                data: volumes,
-                                borderColor: '#22d3ee',
-                                backgroundColor: 'rgba(34, 211, 238, 0.1)',
-                                tension: 0.4,
-                                fill: true,
-                                pointBackgroundColor: '#22d3ee',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                pointRadius: 6,
-                                pointHoverRadius: 8,
-                                yAxisID: 'y1'
+                                pointHoverRadius: 8
                             }
                         ]
                     },
@@ -1178,8 +1744,7 @@
                         },
                         plugins: {
                             legend: {
-                                display: true,
-                                position: 'top',
+                                display: false
                             },
                             tooltip: {
                                 backgroundColor: '#1e293b',
@@ -1187,31 +1752,28 @@
                                 bodyColor: '#fff',
                                 padding: 12,
                                 cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Peso: ${context.parsed.y} kg`;
+                                    }
+                                }
                             }
                         },
                         scales: {
                             y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
+                                beginAtZero: false,
                                 title: {
                                     display: true,
-                                    text: 'Peso (kg)'
+                                    text: 'Peso (kg)',
+                                    color: '#6b7280'
                                 },
                                 grid: {
                                     color: 'rgba(0, 0, 0, 0.05)'
-                                }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                title: {
-                                    display: true,
-                                    text: 'Volume (kg)'
                                 },
-                                grid: {
-                                    drawOnChartArea: false,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + ' kg';
+                                    }
                                 }
                             },
                             x: {
@@ -1219,9 +1781,19 @@
                                     display: false
                                 },
                                 ticks: {
-                                    maxRotation: 45,
-                                    minRotation: 45
+                                    maxRotation: 30,
+                                    minRotation: 30,
+                                    autoSkip: true,
+                                    maxTicksLimit: 10,
+                                    font: {
+                                        size: 11
+                                    }
                                 }
+                            }
+                        },
+                        layout: {
+                            padding: {
+                                bottom: 20
                             }
                         }
                     }
@@ -1246,25 +1818,6 @@
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
-        }
-
-        // Debug function
-        function toggleDebug() {
-            const panel = document.getElementById('debugPanel');
-            panel.classList.toggle('show');
-            if (panel.classList.contains('show')) {
-                updateDebugInfo();
-            }
-        }
-
-        function updateDebugInfo() {
-            const debugInfo = document.getElementById('debugInfo');
-            debugInfo.innerHTML = `
-                User ID: ${currentUser ? currentUser.uid : 'Not logged in'}<br>
-                User Email: ${currentUser ? currentUser.email : 'N/A'}<br>
-                Today's Date: ${getTodayString()}<br>
-                Timestamp: ${new Date().getTime()}
-            `;
         }
 
         // Initialize app
