@@ -1169,7 +1169,7 @@
                        if (!doc.exists) {
                            userRef.set({
                                displayName: result.user.displayName,
-                               email: result.user.email,
+                               email: result.user.email.toLowerCase(), // <-- CORREZIONE: Salva email in minuscolo
                                photoURL: result.user.photoURL,
                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
                            });
@@ -1930,10 +1930,10 @@
        // Send Friend Request
        document.getElementById('addFriendForm').addEventListener('submit', async (e) => {
            e.preventDefault();
-           const friendEmail = document.getElementById('friendEmail').value.trim();
+           const friendEmail = document.getElementById('friendEmail').value.trim().toLowerCase(); // <-- CORREZIONE: Converti in minuscolo
            if (!friendEmail || !currentUser) return;
 
-           if (friendEmail === currentUser.email) {
+           if (friendEmail === currentUser.email.toLowerCase()) {
                showToast('🤔 Non puoi aggiungere te stesso!', 'error');
                return;
            }
@@ -1949,23 +1949,34 @@
                }
 
                const friendId = snapshot.docs[0].id;
-               const friendData = snapshot.docs[0].data();
-
-               // Check if already friends or request pending
-               const existingRequest = await db.collection('friendRequests')
-                   .where('senderId', '==', currentUser.uid)
-                   .where('receiverId', '==', friendId)
-                   .get();
-
-               const existingRequest2 = await db.collection('friendRequests')
-                   .where('senderId', '==', friendId)
-                   .where('receiverId', '==', currentUser.uid)
-                   .get();
-
-               if (!existingRequest.empty || !existingRequest2.empty) {
-                   showToast('⏳ Richiesta già inviata o ricevuta.', 'warning');
+               
+               // --- NUOVO CONTROLLO ---
+               // Check if already friends
+               const friendDoc = await db.collection('users').doc(currentUser.uid).collection('friends').doc(friendId).get();
+               if (friendDoc.exists) {
+                   showToast('🧑‍🤝‍🧑 Siete già amici.', 'warning');
                    return;
                }
+               
+               // Check if a request is already pending (either way)
+               const requestQuery1 = db.collection('friendRequests')
+                   .where('senderId', '==', currentUser.uid)
+                   .where('receiverId', '==', friendId)
+                   .where('status', '==', 'pending');
+               
+               const requestQuery2 = db.collection('friendRequests')
+                   .where('senderId', '==', friendId)
+                   .where('receiverId', '==', currentUser.uid)
+                   .where('status', '==', 'pending');
+
+               const [requestSnapshot1, requestSnapshot2] = await Promise.all([requestQuery1.get(), requestQuery2.get()]);
+
+               if (!requestSnapshot1.empty || !requestSnapshot2.empty) {
+                   showToast('⏳ Una richiesta è già in sospeso.', 'warning');
+                   return;
+               }
+               // --- FINE NUOVO CONTROLLO ---
+
 
                // Create friend request
                await db.collection('friendRequests').add({
@@ -2041,16 +2052,17 @@
                    const senderFriendsRef = db.collection('users').doc(requestData.senderId).collection('friends').doc(currentUser.uid);
                    batch.set(senderFriendsRef, { friendId: currentUser.uid, friendName: currentUser.displayName, friendEmail: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
 
-                   // Update request status
+                   // Update request status to 'accepted'
                    batch.update(requestRef, { status: 'accepted' });
 
                    await batch.commit();
                    showToast('🎉 Amicizia accettata!', 'success');
                } else {
+                   // Update request status to 'declined'
                    await requestRef.update({ status: 'declined' });
                    showToast('👍 Richiesta rifiutata.', 'success');
                }
-               loadFriends(); // Refresh friends list
+               // No need to call loadFriends() here, onSnapshot will handle it automatically
            } catch (error) {
                console.error("Error handling friend request:", error);
                showToast('❌ Errore nella gestione della richiesta.', 'error');
