@@ -1,2178 +1,1828 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-   <title>💪 GymTracker Pro</title>
-   
-   <!-- Firebase -->
-   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-   <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-   
-   <!-- Chart.js -->
-   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-   
-   <!-- Google Fonts -->
-   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-   
-   <style>
-       * {
-           margin: 0;
-           padding: 0;
-           box-sizing: border-box;
-       }
-
-       :root {
-           --primary: #6366f1;
-           --primary-dark: #4f46e5;
-           --secondary: #22d3ee;
-           --success: #10b981;
-           --danger: #ef4444;
-           --warning: #f59e0b;
-           --dark: #1e293b;
-           --light: #f1f5f9;
-           --white: #ffffff;
-           --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-       }
-
-       body {
-           font-family: 'Poppins', sans-serif;
-           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-           min-height: 100vh;
-           overflow-x: hidden;
-       }
-
-       .container {
-           max-width: 500px;
-           margin: 0 auto;
-           padding: 20px;
-           animation: fadeIn 0.5s ease;
-       }
-
-       @keyframes fadeIn {
-           from {
-               opacity: 0;
-               transform: translateY(20px);
-           }
-           to {
-               opacity: 1;
-               transform: translateY(0);
-           }
-       }
-
-       /* Login Screen */
-       .login-container {
-           display: flex;
-           flex-direction: column;
-           justify-content: center;
-           align-items: center;
-           min-height: 100vh;
-           padding: 20px;
-       }
-
-       .login-card {
-           background: rgba(255, 255, 255, 0.95);
-           backdrop-filter: blur(10px);
-           border-radius: 30px;
-           padding: 40px 30px;
-           box-shadow: var(--shadow);
-           width: 100%;
-           max-width: 400px;
-           animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-       }
-
-       @keyframes slideUp {
-           from {
-               opacity: 0;
-               transform: translateY(50px);
-           }
-           to {
-               opacity: 1;
-               transform: translateY(0);
-           }
-       }
-
-       .logo {
-           text-align: center;
-           margin-bottom: 30px;
-       }
-
-       .logo-icon {
-           font-size: 60px;
-           animation: pulse 2s infinite;
-       }
-
-       @keyframes pulse {
-           0%, 100% { transform: scale(1); }
-           50% { transform: scale(1.1); }
-       }
-
-       .app-title {
-           font-size: 28px;
-           font-weight: 700;
-           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-           -webkit-background-clip: text;
-           -webkit-text-fill-color: transparent;
-           margin-top: 10px;
-       }
-
-       .google-btn {
-           width: 100%;
-           padding: 15px;
-           background: var(--white);
-           border: 2px solid #e5e7eb;
-           border-radius: 15px;
-           font-size: 16px;
-           font-weight: 500;
-           cursor: pointer;
-           display: flex;
-           align-items: center;
-           justify-content: center;
-           gap: 10px;
-           transition: all 0.3s ease;
-           margin-top: 20px;
-       }
-
-       .google-btn:hover {
-           transform: translateY(-2px);
-           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-       }
-
-       .google-icon {
-           width: 24px;
-           height: 24px;
-       }
-
-       /* Header */
-       .header {
-           background: rgba(255, 255, 255, 0.95);
-           backdrop-filter: blur(10px);
-           border-radius: 20px;
-           padding: 15px 20px;
-           margin-bottom: 20px;
-           box-shadow: var(--shadow);
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           animation: slideDown 0.5s ease;
-       }
-
-       @keyframes slideDown {
-           from {
-               opacity: 0;
-               transform: translateY(-20px);
-           }
-           to {
-               opacity: 1;
-               transform: translateY(0);
-           }
-       }
-
-       .user-info {
-           display: flex;
-           align-items: center;
-           gap: 10px;
-       }
-
-       .user-avatar {
-           width: 40px;
-           height: 40px;
-           border-radius: 50%;
-           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-           display: flex;
-           align-items: center;
-           justify-content: center;
-           color: white;
-           font-weight: 600;
-       }
-
-       .user-name {
-           font-weight: 500;
-           color: var(--dark);
-           font-size: 14px;
-       }
-
-       .logout-btn {
-           background: var(--danger);
-           color: white;
-           border: none;
-           padding: 8px 15px;
-           border-radius: 10px;
-           cursor: pointer;
-           font-weight: 500;
-           transition: all 0.3s ease;
-       }
-
-       .logout-btn:hover {
-           transform: scale(1.05);
-           box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
-       }
-
-       /* Navigation Tabs */
-       .nav-tabs {
-           display: flex;
-           gap: 10px;
-           margin-bottom: 20px;
-           background: rgba(255, 255, 255, 0.9);
-           padding: 10px;
-           border-radius: 15px;
-           overflow-x: auto;
-           -webkit-overflow-scrolling: touch;
-       }
-
-       .nav-tab {
-           flex: 1;
-           padding: 12px 20px;
-           background: transparent;
-           border: none;
-           border-radius: 10px;
-           font-weight: 500;
-           color: var(--dark);
-           cursor: pointer;
-           transition: all 0.3s ease;
-           white-space: nowrap;
-       }
-
-       .nav-tab.active {
-           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-           color: white;
-           transform: scale(1.05);
-       }
-
-       /* Content Sections */
-       .content-section {
-           display: none;
-           animation: fadeInScale 0.4s ease;
-       }
-
-       .content-section.active {
-           display: block;
-       }
-
-       @keyframes fadeInScale {
-           from {
-               opacity: 0;
-               transform: scale(0.95);
-           }
-           to {
-               opacity: 1;
-               transform: scale(1);
-           }
-       }
-
-       /* Cards */
-       .card {
-           background: rgba(255, 255, 255, 0.95);
-           backdrop-filter: blur(10px);
-           border-radius: 20px;
-           padding: 20px;
-           margin-bottom: 15px;
-           box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-           animation: slideIn 0.3s ease;
-           transition: all 0.3s ease;
-       }
-
-       .card:hover {
-           transform: translateY(-2px);
-           box-shadow: var(--shadow);
-       }
-
-       @keyframes slideIn {
-           from {
-               opacity: 0;
-               transform: translateX(-20px);
-           }
-           to {
-               opacity: 1;
-               transform: translateX(0);
-           }
-       }
-
-       /* Forms */
-       .form-group {
-           margin-bottom: 20px;
-       }
-
-       label {
-           display: block;
-           font-weight: 500;
-           color: var(--dark);
-           margin-bottom: 8px;
-           font-size: 14px;
-       }
-
-       input, select, textarea {
-           width: 100%;
-           padding: 12px 15px;
-           border: 2px solid #e5e7eb;
-           border-radius: 12px;
-           font-size: 16px;
-           transition: all 0.3s ease;
-           font-family: 'Poppins', sans-serif;
-       }
-
-       input:focus, select:focus, textarea:focus {
-           outline: none;
-           border-color: var(--primary);
-           box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-       }
-
-       textarea {
-           resize: vertical;
-           min-height: 80px;
-       }
-
-       /* Input with button */
-       .input-with-btn {
-           display: flex;
-           gap: 10px;
-       }
-
-       .input-with-btn input {
-           flex: 1;
-       }
-
-       .select-btn {
-           padding: 12px 20px;
-           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-           color: white;
-           border: none;
-           border-radius: 12px;
-           cursor: pointer;
-           font-size: 14px;
-           transition: all 0.3s ease;
-           white-space: nowrap;
-       }
-
-       .select-btn:hover {
-           transform: scale(1.05);
-           box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
-       }
-
-       /* Suggestion Badge */
-       .suggestion-badge {
-           background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-           color: white;
-           padding: 8px 12px;
-           border-radius: 10px;
-           font-size: 12px;
-           margin-top: 8px;
-           display: none;
-           animation: slideDown 0.3s ease;
-       }
-
-       .suggestion-badge.show {
-           display: block;
-       }
-
-       /* Buttons */
-       .btn {
-           padding: 12px 24px;
-           border: none;
-           border-radius: 12px;
-           font-weight: 600;
-           cursor: pointer;
-           transition: all 0.3s ease;
-           font-size: 16px;
-           display: inline-block;
-           text-align: center;
-       }
-
-       .btn-primary {
-           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-           color: white;
-       }
-
-       .btn-primary:hover {
-           transform: translateY(-2px);
-           box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-       }
-
-       .btn-success {
-           background: var(--success);
-           color: white;
-       }
-
-       .btn-danger {
-           background: var(--danger);
-           color: white;
-           padding: 8px 12px;
-           font-size: 14px;
-       }
-
-       .btn-block {
-           width: 100%;
-       }
-
-       /* Modal/Popup */
-       .modal {
-           display: none;
-           position: fixed;
-           top: 0;
-           left: 0;
-           width: 100%;
-           height: 100%;
-           background: rgba(0, 0, 0, 0.6);
-           z-index: 2000;
-           animation: fadeIn 0.3s ease;
-       }
-
-       .modal.active {
-           display: flex;
-           align-items: flex-end;
-           justify-content: center;
-       }
-
-       .modal-content {
-           background: white;
-           border-radius: 30px 30px 0 0;
-           padding: 30px;
-           width: 100%;
-           max-width: 500px;
-           max-height: 70vh;
-           overflow-y: auto;
-           animation: slideUpModal 0.3s ease;
-       }
-
-       @keyframes slideUpModal {
-           from {
-               transform: translateY(100%);
-           }
-           to {
-               transform: translateY(0);
-           }
-       }
-
-       .modal-header {
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           margin-bottom: 20px;
-           border-bottom: 2px solid #f3f4f6;
-           padding-bottom: 15px;
-       }
-
-       .modal-title {
-           font-size: 20px;
-           font-weight: 600;
-           color: var(--dark);
-       }
-
-       .close-modal {
-           background: none;
-           border: none;
-           font-size: 28px;
-           cursor: pointer;
-           color: #6b7280;
-           transition: all 0.3s ease;
-           padding: 0;
-           width: 30px;
-           height: 30px;
-           display: flex;
-           align-items: center;
-           justify-content: center;
-       }
-
-       .close-modal:hover {
-           transform: rotate(90deg);
-           color: var(--danger);
-       }
-
-       /* Selection List */
-       .selection-list {
-           display: flex;
-           flex-direction: column;
-           gap: 10px;
-       }
-
-       .selection-item {
-           background: #f9fafb;
-           padding: 15px;
-           border-radius: 15px;
-           cursor: pointer;
-           transition: all 0.3s ease;
-           border: 2px solid transparent;
-           position: relative;
-       }
-
-       .selection-item:hover {
-           background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(127, 75, 162, 0.1) 100%);
-           border-color: var(--primary);
-           transform: translateX(5px);
-       }
-
-       .selection-item.selected {
-           background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(127, 75, 162, 0.2) 100%);
-           border-color: var(--primary);
-       }
-
-       .selection-item-header {
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           margin-bottom: 5px;
-       }
-
-       .selection-item-name {
-           font-weight: 600;
-           color: var(--dark);
-           font-size: 16px;
-       }
-
-       .selection-item-date {
-           font-size: 12px;
-           color: #6b7280;
-       }
-
-       .selection-item-details {
-           display: flex;
-           gap: 15px;
-           font-size: 14px;
-           color: #6b7280;
-       }
-
-       .selection-item-detail {
-           display: flex;
-           align-items: center;
-           gap: 5px;
-       }
-
-       /* Search Box */
-       .search-box {
-           margin-bottom: 20px;
-       }
-
-       .search-input {
-           width: 100%;
-           padding: 12px 15px;
-           border: 2px solid #e5e7eb;
-           border-radius: 12px;
-           font-size: 16px;
-           transition: all 0.3s ease;
-       }
-
-       .search-input:focus {
-           outline: none;
-           border-color: var(--primary);
-           box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-       }
-
-       /* Add New Button */
-       .add-new-btn {
-           width: 100%;
-           padding: 12px;
-           background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-           color: white;
-           border: none;
-           border-radius: 12px;
-           font-weight: 600;
-           cursor: pointer;
-           margin-bottom: 15px;
-           transition: all 0.3s ease;
-       }
-
-       .add-new-btn:hover {
-           transform: translateY(-2px);
-           box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
-       }
-
-       /* Day Divider */
-       .day-divider {
-           position: relative;
-           text-align: center;
-           margin: 30px 0;
-           animation: fadeIn 0.5s ease;
-       }
-
-       .day-divider-line {
-           height: 3px;
-           background: linear-gradient(90deg, transparent, #667eea, #764ba2, transparent);
-           border-radius: 3px;
-           margin: 20px 0;
-       }
-
-       .day-divider-text {
-           background: rgba(255, 255, 255, 0.95);
-           padding: 10px 20px;
-           border-radius: 20px;
-           display: inline-block;
-           font-weight: 600;
-           color: var(--dark);
-           box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
-       }
-
-       .day-divider-date {
-           font-size: 12px;
-           color: #6b7280;
-           margin-top: 5px;
-       }
-
-       /* Exercise List */
-       .exercise-item {
-           background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-           padding: 15px;
-           border-radius: 15px;
-           margin-bottom: 15px;
-           position: relative;
-           overflow: hidden;
-           animation: slideUp 0.3s ease;
-       }
-
-       .exercise-item::before {
-           content: '';
-           position: absolute;
-           left: 0;
-           top: 0;
-           height: 100%;
-           width: 4px;
-           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-       }
-
-       .exercise-header {
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           margin-bottom: 10px;
-       }
-
-       .exercise-name {
-           font-weight: 600;
-           font-size: 18px;
-           color: var(--dark);
-       }
-
-       .exercise-date {
-           font-size: 12px;
-           color: #6b7280;
-       }
-
-       .exercise-details {
-           display: grid;
-           grid-template-columns: repeat(3, 1fr);
-           gap: 10px;
-           margin-bottom: 10px;
-       }
-
-       .detail-item {
-           display: flex;
-           align-items: center;
-           gap: 5px;
-       }
-
-       .detail-label {
-           font-size: 14px;
-           color: #6b7280;
-       }
-
-       .detail-value {
-           font-weight: 600;
-           color: var(--primary);
-       }
-
-       .exercise-comment {
-           background: white;
-           padding: 10px;
-           border-radius: 10px;
-           font-size: 14px;
-           color: #4b5563;
-           margin-top: 10px;
-       }
-
-       /* Chart Container */
-       .chart-container {
-           background: white;
-           border-radius: 20px;
-           padding: 20px;
-           padding-bottom: 40px;
-           margin-top: 20px;
-           box-shadow: var(--shadow);
-           height: 350px;
-           position: relative;
-       }
-
-       .chart-header {
-           margin-bottom: 20px;
-       }
-
-       .chart-title {
-           font-size: 20px;
-           font-weight: 600;
-           color: var(--dark);
-           margin-bottom: 10px;
-       }
-
-       /* Loading Spinner */
-       .spinner {
-           border: 3px solid #f3f4f6;
-           border-top: 3px solid var(--primary);
-           border-radius: 50%;
-           width: 40px;
-           height: 40px;
-           animation: spin 1s linear infinite;
-           margin: 20px auto;
-       }
-
-       @keyframes spin {
-           0% { transform: rotate(0deg); }
-           100% { transform: rotate(360deg); }
-       }
-
-       /* Stats Cards */
-       .stats-grid {
-           display: grid;
-           grid-template-columns: 1fr;
-           gap: 15px;
-           margin-bottom: 20px;
-       }
-
-       .stat-card {
-           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-           color: white;
-           padding: 20px;
-           border-radius: 15px;
-           text-align: center;
-           transition: all 0.3s ease;
-       }
-
-       .stat-card:hover {
-           transform: translateY(-5px);
-           box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
-       }
-
-       .stat-value {
-           font-size: 32px;
-           font-weight: 700;
-           margin-bottom: 5px;
-       }
-
-       .stat-label {
-           font-size: 14px;
-           opacity: 0.9;
-       }
-
-       /* Empty State */
-       .empty-state {
-           text-align: center;
-           padding: 40px;
-           color: #6b7280;
-       }
-
-       .empty-icon {
-           font-size: 60px;
-           margin-bottom: 20px;
-           opacity: 0.5;
-       }
-
-       .empty-text {
-           font-size: 18px;
-           margin-bottom: 10px;
-       }
-
-       .empty-subtext {
-           font-size: 14px;
-           opacity: 0.7;
-       }
-
-       /* Toast Notification */
-       .toast {
-           position: fixed;
-           bottom: 100px;
-           left: 50%;
-           transform: translateX(-50%) translateY(100px);
-           background: var(--dark);
-           color: white;
-           padding: 15px 25px;
-           border-radius: 50px;
-           box-shadow: var(--shadow);
-           z-index: 3000;
-           opacity: 0;
-           transition: all 0.3s ease;
-       }
-
-       .toast.show {
-           transform: translateX(-50%) translateY(0);
-           opacity: 1;
-       }
-
-       .toast.success {
-           background: var(--success);
-       }
-
-       .toast.error {
-           background: var(--danger);
-       }
-
-       /* Animation for new items */
-       @keyframes bounceIn {
-           0% {
-               opacity: 0;
-               transform: scale(0.3);
-           }
-           50% {
-               transform: scale(1.05);
-           }
-           70% {
-               transform: scale(0.9);
-           }
-           100% {
-               opacity: 1;
-               transform: scale(1);
-           }
-       }
-
-       .new-item {
-           animation: bounceIn 0.6s ease;
-       }
-
-       /* Friends Section Styles */
-       .friend-item, .friend-request-item {
-           display: flex;
-           align-items: center;
-           justify-content: space-between;
-           padding: 15px;
-           background: #f9fafb;
-           border-radius: 15px;
-           margin-bottom: 10px;
-           transition: all 0.3s ease;
-       }
-
-       .friend-item:hover {
-           transform: translateX(5px);
-           background: #f3f4f6;
-       }
-
-       .friend-info {
-           display: flex;
-           align-items: center;
-           gap: 15px;
-       }
-
-       .friend-avatar {
-           width: 45px;
-           height: 45px;
-           border-radius: 50%;
-           background: linear-gradient(135deg, #22d3ee 0%, #10b981 100%);
-           display: flex;
-           align-items: center;
-           justify-content: center;
-           color: white;
-           font-weight: 600;
-           font-size: 18px;
-       }
-
-       .friend-name {
-           font-weight: 600;
-           color: var(--dark);
-       }
-       
-       .friend-email {
-           font-size: 12px;
-           color: #6b7280;
-       }
-
-       .friend-actions button {
-           margin-left: 5px;
-           padding: 8px 12px;
-           font-size: 14px;
-       }
-   </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>💪 GymTracker Pro</title>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #22d3ee;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f1f5f9;
+            --white: #ffffff;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 40px 30px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            font-size: 60px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .app-title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 10px;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--white);
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .google-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .google-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 15px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeInScale 0.4s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Input with button */
+        .input-with-btn {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-with-btn input {
+            flex: 1;
+        }
+
+        .select-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .select-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Suggestion Badge */
+        .suggestion-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-top: 8px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .suggestion-badge.show {
+            display: block;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        /* Modal/Popup */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 30px 30px 0 0;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 70vh;
+            overflow-y: auto;
+            animation: slideUpModal 0.3s ease;
+        }
+
+        @keyframes slideUpModal {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: all 0.3s ease;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            transform: rotate(90deg);
+            color: var(--danger);
+        }
+
+        /* Selection List */
+        .selection-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .selection-item {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .selection-item:hover {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(127, 75, 162, 0.1) 100%);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .selection-item.selected {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(127, 75, 162, 0.2) 100%);
+            border-color: var(--primary);
+        }
+
+        .selection-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .selection-item-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 16px;
+        }
+
+        .selection-item-date {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .selection-item-details {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .selection-item-detail {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Search Box */
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Add New Button */
+        .add-new-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .add-new-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Day Divider */
+        .day-divider {
+            position: relative;
+            text-align: center;
+            margin: 30px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .day-divider-line {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #667eea, #764ba2, transparent);
+            border-radius: 3px;
+            margin: 20px 0;
+        }
+
+        .day-divider-text {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 600;
+            color: var(--dark);
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
+        }
+
+        .day-divider-date {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        /* Exercise List */
+        .exercise-item {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.3s ease;
+        }
+
+        .exercise-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .exercise-name {
+            font-weight: 600;
+            font-size: 18px;
+            color: var(--dark);
+        }
+
+        .exercise-date {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .exercise-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .exercise-comment {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #4b5563;
+            margin-top: 10px;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            padding-bottom: 40px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+            height: 350px;
+            position: relative;
+        }
+
+        .chart-header {
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .empty-subtext {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--dark);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+            z-index: 3000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* Animation for new items */
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .new-item {
+            animation: bounceIn 0.6s ease;
+        }
+    </style>
 </head>
 <body>
-   <!-- Login Screen -->
-   <div id="loginScreen" class="login-container">
-       <div class="login-card">
-           <div class="logo">
-               <div class="logo-icon">💪</div>
-               <h1 class="app-title">GymTracker Pro</h1>
-               <p style="color: #6b7280; margin-top: 10px;">Il tuo compagno di allenamento</p>
-           </div>
-           <button id="googleLogin" class="google-btn">
-               <svg class="google-icon" viewBox="0 0 24 24">
-                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                   <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-               </svg>
-               Accedi con Google
-           </button>
-       </div>
-   </div>
-
-   <!-- Main App -->
-   <div id="mainApp" style="display: none;">
-       <div class="container">
-           <!-- Header -->
-           <div class="header">
-               <div class="user-info">
-                   <div class="user-avatar" id="userAvatar">U</div>
-                   <div class="user-name" id="userName">Utente</div>
-               </div>
-               <button class="logout-btn" onclick="logout()">Esci</button>
-           </div>
-
-           <!-- Navigation Tabs -->
-           <div class="nav-tabs">
-               <button class="nav-tab active" onclick="switchTab(event, 'workout')">
-                   📝 Allenamento
-               </button>
-               <button class="nav-tab" onclick="switchTab(event, 'history')">
-                   📊 Storico
-               </button>
-               <button class="nav-tab" onclick="switchTab(event, 'stats')">
-                   📈 Statistiche
-               </button>
-               <button class="nav-tab" onclick="switchTab(event, 'friends')">
-                   🧑‍🤝‍🧑 Amici
-               </button>
-           </div>
-
-           <!-- Workout Section -->
-           <div id="workoutSection" class="content-section active">
-               <div class="card">
-                   <h2 style="margin-bottom: 20px; color: var(--dark);">Nuovo Esercizio</h2>
-                   
-                   <!-- Day Name Input -->
-                   <div class="form-group">
-                       <label for="dayName">Nome della Giornata (opzionale)</label>
-                       <div class="input-with-btn">
-                           <input type="text" id="dayName" placeholder="Es: Leg Day, Push Day...">
-                           <button type="button" class="select-btn" onclick="openDayNameModal()">📋 Scegli</button>
-                       </div>
-                   </div>
-
-                   <form id="exerciseForm">
-                       <div class="form-group">
-                           <label for="exerciseName">Nome Esercizio</label>
-                           <div class="input-with-btn">
-                               <input type="text" id="exerciseName" placeholder="Es: Panca piana" required>
-                               <button type="button" class="select-btn" onclick="openExerciseModal()">🏋️ Scegli</button>
-                           </div>
-                       </div>
-                       
-                       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                           <div class="form-group">
-                               <label for="weight">Peso (kg)</label>
-                               <input type="number" id="weight" step="0.5" placeholder="50" required>
-                               <div id="weightSuggestion" class="suggestion-badge">
-                                   💡 Suggerimento: <span id="suggestedWeight"></span> kg
-                               </div>
-                           </div>
-                           
-                           <div class="form-group">
-                               <label for="reps">Ripetizioni</label>
-                               <input type="number" id="reps" placeholder="10" required>
-                           </div>
-                       </div>
-                       
-                       <div class="form-group">
-                           <label for="sets">Serie</label>
-                           <input type="number" id="sets" placeholder="3" required>
-                       </div>
-                       
-                       <div class="form-group">
-                           <label for="comment">Commento (opzionale)</label>
-                           <textarea id="comment" placeholder="Note sull'esercizio..."></textarea>
-                       </div>
-                       
-                       <button type="submit" class="btn btn-primary btn-block">
-                           ➕ Aggiungi Esercizio
-                       </button>
-                   </form>
-               </div>
-
-               <!-- Today's Exercises -->
-               <div class="card">
-                   <h3 style="margin-bottom: 15px; color: var(--dark);">Esercizi di Oggi</h3>
-                   <div id="todayExercises">
-                       <div class="empty-state">
-                           <div class="empty-icon">🏋️‍♂️</div>
-                           <div class="empty-text">Nessun esercizio oggi</div>
-                           <div class="empty-subtext">Inizia ad aggiungere i tuoi esercizi!</div>
-                       </div>
-                   </div>
-               </div>
-           </div>
-
-           <!-- History Section -->
-           <div id="historySection" class="content-section">
-               <div class="card">
-                   <h2 style="margin-bottom: 20px; color: var(--dark);">Storico Allenamenti</h2>
-                   <div id="exerciseHistory">
-                       <div class="spinner"></div>
-                   </div>
-               </div>
-           </div>
-
-           <!-- Stats Section -->
-           <div id="statsSection" class="content-section">
-               <!-- Stats Cards -->
-               <div class="stats-grid">
-                   <div class="stat-card">
-                       <div class="stat-value" id="totalWorkouts">0</div>
-                       <div class="stat-label">Allenamenti Totali</div>
-                   </div>
-               </div>
-
-               <!-- Exercise Selector -->
-               <div class="card">
-                   <div class="form-group">
-                       <label for="chartExercise">Seleziona Esercizio per il Grafico</label>
-                       <select id="chartExercise" onchange="updateChart()">
-                           <option value="">Seleziona un esercizio...</option>
-                       </select>
-                   </div>
-               </div>
-
-               <!-- Chart -->
-               <div class="chart-container">
-                   <div class="chart-header">
-                       <h3 class="chart-title">Progressi nel Tempo</h3>
-                   </div>
-                   <canvas id="progressChart"></canvas>
-               </div>
-           </div>
-           
-           <!-- Friends Section -->
-           <div id="friendsSection" class="content-section">
-               <!-- Add Friend -->
-               <div class="card">
-                   <h2 style="margin-bottom: 20px; color: var(--dark);">Aggiungi un Amico</h2>
-                   <form id="addFriendForm">
-                       <div class="form-group">
-                           <label for="friendEmail">Email dell'amico</label>
-                           <input type="email" id="friendEmail" placeholder="amico@esempio.com" required>
-                       </div>
-                       <button type="submit" class="btn btn-primary btn-block">Invia Richiesta</button>
-                   </form>
-               </div>
-
-               <!-- Friend Requests -->
-               <div class="card">
-                   <h3 style="margin-bottom: 15px; color: var(--dark);">Richieste in Sospeso</h3>
-                   <div id="friendRequests">
-                       <!-- Friend requests will be populated here -->
-                   </div>
-               </div>
-
-               <!-- Friends List -->
-               <div class="card">
-                   <h3 style="margin-bottom: 15px; color: var(--dark);">I Tuoi Amici</h3>
-                   <div id="friendsList">
-                       <!-- Friends list will be populated here -->
-                   </div>
-               </div>
-           </div>
-
-       </div>
-   </div>
-
-   <!-- Exercise Selection Modal -->
-   <div id="exerciseModal" class="modal">
-       <div class="modal-content">
-           <div class="modal-header">
-               <h3 class="modal-title">🏋️ Seleziona Esercizio</h3>
-               <button class="close-modal" onclick="closeModal('exerciseModal')">×</button>
-           </div>
-           
-           <div class="search-box">
-               <input type="text" class="search-input" id="exerciseSearch" placeholder="🔍 Cerca esercizio..." onkeyup="filterExercises()">
-           </div>
-
-           <button class="add-new-btn" onclick="addNewExercise()">➕ Aggiungi Nuovo Esercizio</button>
-           
-           <div class="selection-list" id="exerciseList">
-               <!-- Exercise items will be populated here -->
-           </div>
-       </div>
-   </div>
-
-   <!-- Day Name Selection Modal -->
-   <div id="dayNameModal" class="modal">
-       <div class="modal-content">
-           <div class="modal-header">
-               <h3 class="modal-title">📅 Seleziona Nome Giornata</h3>
-               <button class="close-modal" onclick="closeModal('dayNameModal')">×</button>
-           </div>
-           
-           <div class="search-box">
-               <input type="text" class="search-input" id="dayNameSearch" placeholder="🔍 Cerca o inserisci nuovo nome..." onkeyup="filterDayNames()">
-           </div>
-
-           <button class="add-new-btn" onclick="addNewDayName()">➕ Usa Questo Nome</button>
-           
-           <div class="selection-list" id="dayNameList">
-               <!-- Day name items will be populated here -->
-           </div>
-       </div>
-   </div>
-   
-   <!-- Friend's Exercises Modal -->
-   <div id="friendExercisesModal" class="modal">
-       <div class="modal-content">
-           <div class="modal-header">
-               <h3 class="modal-title" id="friendExercisesTitle">Allenamenti di...</h3>
-               <button class="close-modal" onclick="closeModal('friendExercisesModal')">×</button>
-           </div>
-           <div id="friendExercisesContent" style="max-height: 50vh; overflow-y: auto; padding-right: 10px;">
-               <!-- Friend's exercises will be populated here -->
-           </div>
-       </div>
-   </div>
-
-
-   <!-- Toast Notification -->
-   <div id="toast" class="toast"></div>
-
-   <script>
-       // Firebase Configuration - INSERISCI LE TUE CREDENZIALI QUI
-       const firebaseConfig = {
-           apiKey: "AIzaSyDUTGmVgzkayqLckAMMZrWrREhrNs4OhzM",
-           authDomain: "gymdata-5ca2d.firebaseapp.com",
-           projectId: "gymdata-5ca2d",
-           storageBucket: "gymdata-5ca2d.firebasestorage.app",
-           messagingSenderId: "970351774367",
-           appId: "1:970351774367:web:17617175fcf922d37930aa"
-       };
-
-       // Initialize Firebase
-       firebase.initializeApp(firebaseConfig);
-       const auth = firebase.auth();
-       const db = firebase.firestore();
-       
-       let currentUser = null;
-       let progressChart = null;
-       let exerciseHistory = [];
-       let uniqueExercises = {};
-       let uniqueDayNames = new Set();
-
-       // Helper function per formattare la data
-       function formatDate(date) {
-           const d = new Date(date);
-           return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
-       }
-
-       // Helper function per ottenere la data di oggi
-       function getTodayString() {
-           return formatDate(new Date());
-       }
-
-       // Google Sign In
-       document.getElementById('googleLogin').addEventListener('click', () => {
-           const provider = new firebase.auth.GoogleAuthProvider();
-           auth.signInWithPopup(provider)
-               .then((result) => {
-                   console.log('Login successful:', result.user);
-                   // Create user profile if it doesn't exist
-                   const userRef = db.collection('users').doc(result.user.uid);
-                   userRef.get().then((doc) => {
-                       if (!doc.exists) {
-                           userRef.set({
-                               displayName: result.user.displayName,
-                               email: result.user.email.toLowerCase(), // <-- CORREZIONE: Salva email in minuscolo
-                               photoURL: result.user.photoURL,
-                               createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                           });
-                       }
-                   });
-                   showToast('✅ Accesso effettuato con successo!', 'success');
-               })
-               .catch((error) => {
-                   console.error('Login error:', error);
-                   showToast('❌ Errore durante il login: ' + error.message, 'error');
-               });
-       });
-
-
-       // Auth State Observer
-       auth.onAuthStateChanged((user) => {
-           if (user) {
-               currentUser = user;
-               document.getElementById('loginScreen').style.display = 'none';
-               document.getElementById('mainApp').style.display = 'block';
-               
-               // Update user info
-               document.getElementById('userName').textContent = user.displayName || 'Utente';
-               document.getElementById('userAvatar').textContent = (user.displayName || 'U')[0].toUpperCase();
-               
-               // Load initial data
-               loadTodayExercises();
-               loadStats();
-               loadExerciseHistoryData();
-               listenForFriendRequests();
-               loadFriends();
-               
-               console.log('User logged in:', user.uid);
-           } else {
-               currentUser = null;
-               document.getElementById('loginScreen').style.display = 'flex';
-               document.getElementById('mainApp').style.display = 'none';
-           }
-       });
-
-       // Logout
-       function logout() {
-           if (confirm('Vuoi davvero uscire?')) {
-               auth.signOut()
-                   .then(() => {
-                       showToast('👋 Arrivederci!', 'success');
-                   })
-                   .catch((error) => {
-                       console.error('Logout error:', error);
-                       showToast('❌ Errore durante il logout', 'error');
-                   });
-           }
-       }
-
-       // Switch Tab
-       function switchTab(event, tab) {
-           // Update tabs
-           document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-           event.target.classList.add('active');
-           
-           // Update sections
-           document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-           document.getElementById(tab + 'Section').classList.add('active');
-           
-           // Load data based on tab
-           if (tab === 'history') {
-               loadExerciseHistory();
-           } else if (tab === 'stats') {
-               loadStats();
-               loadExerciseOptions();
-           } else if (tab === 'workout') {
-               loadTodayExercises();
-           } else if (tab === 'friends') {
-               loadFriends();
-           }
-       }
-
-       // Modal Functions
-       function openExerciseModal() {
-           loadExerciseList();
-           document.getElementById('exerciseModal').classList.add('active');
-       }
-
-       function openDayNameModal() {
-           loadDayNameList();
-           document.getElementById('dayNameModal').classList.add('active');
-       }
-
-       function closeModal(modalId) {
-           document.getElementById(modalId).classList.remove('active');
-       }
-
-       // Close modal when clicking outside
-       document.querySelectorAll('.modal').forEach(modal => {
-           modal.addEventListener('click', (e) => {
-               if (e.target === modal) {
-                   modal.classList.remove('active');
-               }
-           });
-       });
-
-       // Load Exercise List for Modal
-       function loadExerciseList() {
-           const exerciseList = document.getElementById('exerciseList');
-           exerciseList.innerHTML = '';
-           
-           // Group exercises by name and get latest data for each
-           const exerciseGroups = {};
-           exerciseHistory.forEach(exercise => {
-               if (!exercise.name) return;
-               if (!exerciseGroups[exercise.name] || exerciseGroups[exercise.name].timestamp < exercise.timestamp) {
-                   exerciseGroups[exercise.name] = exercise;
-               }
-           });
-           
-           // Sort by name
-           const sortedExercises = Object.values(exerciseGroups).sort((a, b) => a.name.localeCompare(b.name));
-           
-           if (sortedExercises.length === 0) {
-               exerciseList.innerHTML = `
-                   <div class="empty-state">
-                       <div class="empty-icon">📝</div>
-                       <div class="empty-text">Nessun esercizio salvato</div>
-                       <div class="empty-subtext">Inizia ad aggiungere nuovi esercizi!</div>
-                   </div>
-               `;
-               return;
-           }
-           
-           sortedExercises.forEach(exercise => {
-               const item = document.createElement('div');
-               item.className = 'selection-item';
-               item.innerHTML = `
-                   <div class="selection-item-header">
-                       <div class="selection-item-name">${exercise.name}</div>
-                       <div class="selection-item-date">${exercise.dateString || ''}</div>
-                   </div>
-                   <div class="selection-item-details">
-                       <div class="selection-item-detail">
-                           <span>💪</span>
-                           <span>${exercise.weight} kg</span>
-                       </div>
-                       <div class="selection-item-detail">
-                           <span>🔄</span>
-                           <span>${exercise.reps} reps</span>
-                       </div>
-                       <div class="selection-item-detail">
-                           <span>📊</span>
-                           <span>${exercise.sets} serie</span>
-                       </div>
-                   </div>
-               `;
-               item.onclick = () => selectExercise(exercise);
-               exerciseList.appendChild(item);
-           });
-       }
-
-       // Filter Exercises in Modal
-       function filterExercises() {
-           const searchTerm = document.getElementById('exerciseSearch').value.toLowerCase();
-           const items = document.querySelectorAll('#exerciseList .selection-item');
-           
-           items.forEach(item => {
-               const name = item.querySelector('.selection-item-name').textContent.toLowerCase();
-               if (name.includes(searchTerm)) {
-                   item.style.display = 'block';
-               } else {
-                   item.style.display = 'none';
-               }
-           });
-       }
-
-       // Select Exercise from Modal
-       function selectExercise(exercise) {
-           document.getElementById('exerciseName').value = exercise.name;
-           
-           // Check if should suggest weight increase
-           if (exercise.reps >= 8) {
-               const suggestedWeight = calculateWeightSuggestion(exercise.weight, exercise.reps);
-               document.getElementById('suggestedWeight').textContent = suggestedWeight;
-               document.getElementById('weightSuggestion').classList.add('show');
-               document.getElementById('weight').value = suggestedWeight;
-           } else {
-               document.getElementById('weight').value = exercise.weight;
-               document.getElementById('weightSuggestion').classList.remove('show');
-           }
-           
-           document.getElementById('reps').value = exercise.reps;
-           document.getElementById('sets').value = exercise.sets;
-           
-           closeModal('exerciseModal');
-           showToast('✅ Esercizio selezionato', 'success');
-       }
-
-       // Add New Exercise from Modal
-       function addNewExercise() {
-           const searchValue = document.getElementById('exerciseSearch').value.trim();
-           if (searchValue) {
-               document.getElementById('exerciseName').value = searchValue;
-               closeModal('exerciseModal');
-               showToast('✅ Nuovo esercizio aggiunto', 'success');
-           } else {
-               showToast('⚠️ Inserisci il nome dell\'esercizio', 'error');
-           }
-       }
-
-       // Load Day Name List for Modal
-       function loadDayNameList() {
-           const dayNameList = document.getElementById('dayNameList');
-           dayNameList.innerHTML = '';
-           
-           if (uniqueDayNames.size === 0) {
-               dayNameList.innerHTML = `
-                   <div class="empty-state">
-                       <div class="empty-icon">📅</div>
-                       <div class="empty-text">Nessun nome salvato</div>
-                       <div class="empty-subtext">Inserisci un nuovo nome per la giornata!</div>
-                   </div>
-               `;
-               return;
-           }
-           
-           Array.from(uniqueDayNames).sort().forEach(name => {
-               const item = document.createElement('div');
-               item.className = 'selection-item';
-               item.innerHTML = `
-                   <div class="selection-item-header">
-                       <div class="selection-item-name">📋 ${name}</div>
-                   </div>
-               `;
-               item.onclick = () => selectDayName(name);
-               dayNameList.appendChild(item);
-           });
-       }
-
-       // Filter Day Names in Modal
-       function filterDayNames() {
-           const searchTerm = document.getElementById('dayNameSearch').value.toLowerCase();
-           const items = document.querySelectorAll('#dayNameList .selection-item');
-           
-           items.forEach(item => {
-               const name = item.querySelector('.selection-item-name').textContent.toLowerCase();
-               if (name.includes(searchTerm)) {
-                   item.style.display = 'block';
-               } else {
-                   item.style.display = 'none';
-               }
-           });
-       }
-
-       // Select Day Name from Modal
-       function selectDayName(name) {
-           document.getElementById('dayName').value = name;
-           closeModal('dayNameModal');
-           showToast('✅ Nome giornata selezionato', 'success');
-       }
-
-       // Add New Day Name from Modal
-       function addNewDayName() {
-           const searchValue = document.getElementById('dayNameSearch').value.trim();
-           if (searchValue) {
-               document.getElementById('dayName').value = searchValue;
-               closeModal('dayNameModal');
-               showToast('✅ Nome giornata impostato', 'success');
-           } else {
-               showToast('⚠️ Inserisci un nome per la giornata', 'error');
-           }
-       }
-
-       // Load exercise history data for suggestions
-       async function loadExerciseHistoryData() {
-           if (!currentUser) return;
-           
-           try {
-               const snapshot = await db.collection('exercises')
-                   .where('userId', '==', currentUser.uid)
-                   .get();
-               
-               exerciseHistory = [];
-               uniqueExercises = {};
-               uniqueDayNames = new Set();
-               
-               snapshot.forEach((doc) => {
-                   const data = doc.data();
-                   exerciseHistory.push(data);
-                   
-                   if (data.name) {
-                       if (!uniqueExercises[data.name] || uniqueExercises[data.name].timestamp < data.timestamp) {
-                           uniqueExercises[data.name] = data;
-                       }
-                   }
-                   
-                   if (data.dayName) {
-                       uniqueDayNames.add(data.dayName);
-                   }
-               });
-               
-               console.log('Loaded exercise history:', exerciseHistory.length, 'exercises');
-               
-           } catch (error) {
-               console.error('Error loading exercise history:', error);
-           }
-       }
-
-       // Calculate weight suggestion
-       function calculateWeightSuggestion(lastWeight, lastReps) {
-           if (lastReps >= 8) {
-               let increase = lastWeight < 50 ? 0.02 : 0.025; // 2% if < 50kg, 2.5% if >= 50kg
-               let suggestedWeight = lastWeight * (1 + increase);
-               // Round to nearest 0.5
-               return Math.round(suggestedWeight * 2) / 2;
-           }
-           return lastWeight;
-       }
-
-       // Update weight suggestion when exercise name changes manually
-       document.getElementById('exerciseName').addEventListener('input', function() {
-           const exerciseName = this.value.trim();
-           if (!exerciseName) {
-               document.getElementById('weightSuggestion').classList.remove('show');
-               return;
-           }
-           
-           // Find exercise in history
-           if (uniqueExercises[exerciseName]) {
-               const exercise = uniqueExercises[exerciseName];
-               
-               if (exercise.reps >= 8) {
-                   const suggestedWeight = calculateWeightSuggestion(exercise.weight, exercise.reps);
-                   document.getElementById('suggestedWeight').textContent = suggestedWeight;
-                   document.getElementById('weightSuggestion').classList.add('show');
-                   document.getElementById('weight').value = suggestedWeight;
-               } else {
-                   document.getElementById('weight').value = exercise.weight;
-                   document.getElementById('weightSuggestion').classList.remove('show');
-               }
-               
-               document.getElementById('reps').value = exercise.reps;
-               document.getElementById('sets').value = exercise.sets;
-           } else {
-               document.getElementById('weightSuggestion').classList.remove('show');
-           }
-       });
-
-       // Exercise Form Submit
-       document.getElementById('exerciseForm').addEventListener('submit', async (e) => {
-           e.preventDefault();
-           
-           if (!currentUser) {
-               showToast('❌ Devi effettuare il login', 'error');
-               return;
-           }
-           
-           const now = new Date();
-           const exerciseData = {
-               userId: currentUser.uid,
-               userName: currentUser.displayName,
-               name: document.getElementById('exerciseName').value.trim(),
-               weight: parseFloat(document.getElementById('weight').value),
-               reps: parseInt(document.getElementById('reps').value),
-               sets: parseInt(document.getElementById('sets').value),
-               comment: document.getElementById('comment').value.trim(),
-               dayName: document.getElementById('dayName').value.trim(),
-               timestamp: now.getTime(),
-               dateString: formatDate(now),
-               createdAt: firebase.firestore.FieldValue.serverTimestamp()
-           };
-           
-           console.log('Saving exercise:', exerciseData);
-           
-           try {
-               const docRef = await db.collection('exercises').add(exerciseData);
-               console.log('Exercise saved with ID:', docRef.id);
-               showToast('✅ Esercizio aggiunto!', 'success');
-               document.getElementById('exerciseForm').reset();
-               document.getElementById('weightSuggestion').classList.remove('show');
-               
-               // Keep day name if it exists
-               if (exerciseData.dayName) {
-                   document.getElementById('dayName').value = exerciseData.dayName;
-               }
-               
-               // Reload data
-               loadTodayExercises();
-               loadStats();
-               loadExerciseHistoryData();
-           } catch (error) {
-               console.error('Error adding exercise:', error);
-               showToast('❌ Errore nel salvataggio: ' + error.message, 'error');
-           }
-       });
-
-       // Load Today's Exercises
-       async function loadTodayExercises() {
-           if (!currentUser) return;
-           
-           const today = getTodayString();
-           const todayExercisesDiv = document.getElementById('todayExercises');
-           
-           console.log('Loading exercises for today:', today);
-           
-           try {
-               const snapshot = await db.collection('exercises')
-                   .where('userId', '==', currentUser.uid)
-                   .where('dateString', '==', today)
-                   .get();
-               
-               console.log('Found exercises:', snapshot.size);
-               
-               if (snapshot.empty) {
-                   todayExercisesDiv.innerHTML = `
-                       <div class="empty-state">
-                           <div class="empty-icon">🏋️‍♂️</div>
-                           <div class="empty-text">Nessun esercizio oggi</div>
-                           <div class="empty-subtext">Inizia ad aggiungere i tuoi esercizi!</div>
-                       </div>
-                   `;
-                   return;
-               }
-               
-               // Sort exercises by timestamp
-               const exercises = [];
-               snapshot.forEach((doc) => {
-                   exercises.push({ id: doc.id, ...doc.data() });
-               });
-               exercises.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-               
-               todayExercisesDiv.innerHTML = '';
-               exercises.forEach((exercise) => {
-                   todayExercisesDiv.innerHTML += createExerciseCard(exercise, exercise.id);
-               });
-           } catch (error) {
-               console.error('Error loading today exercises:', error);
-               todayExercisesDiv.innerHTML = '<p style="color: red;">Errore nel caricamento</p>';
-               showToast('❌ Errore nel caricamento degli esercizi', 'error');
-           }
-       }
-
-       // Load Exercise History
-       async function loadExerciseHistory() {
-           if (!currentUser) return;
-           
-           const historyDiv = document.getElementById('exerciseHistory');
-           historyDiv.innerHTML = '<div class="spinner"></div>';
-           
-           console.log('Loading exercise history...');
-           
-           try {
-               const snapshot = await db.collection('exercises')
-                   .where('userId', '==', currentUser.uid)
-                   .limit(100)
-                   .get();
-               
-               console.log('History exercises found:', snapshot.size);
-               
-               if (snapshot.empty) {
-                   historyDiv.innerHTML = `
-                       <div class="empty-state">
-                           <div class="empty-icon">📋</div>
-                           <div class="empty-text">Nessun esercizio registrato</div>
-                           <div class="empty-subtext">Inizia ad allenarti!</div>
-                       </div>
-                   `;
-                   return;
-               }
-               
-               // Sort exercises by timestamp and group by date
-               const exercisesByDate = {};
-               snapshot.forEach((doc) => {
-                   const data = { id: doc.id, ...doc.data() };
-                   const date = data.dateString || 'Data sconosciuta';
-                   if (!exercisesByDate[date]) {
-                       exercisesByDate[date] = {
-                           exercises: [],
-                           dayName: data.dayName || ''
-                       };
-                   }
-                   exercisesByDate[date].exercises.push(data);
-                   if (data.dayName) {
-                       exercisesByDate[date].dayName = data.dayName;
-                   }
-               });
-               
-               // Sort dates in descending order
-               const sortedDates = Object.keys(exercisesByDate).sort((a, b) => {
-                   const dateA = a.split('/').reverse().join('');
-                   const dateB = b.split('/').reverse().join('');
-                   return dateB.localeCompare(dateA);
-               });
-               
-               historyDiv.innerHTML = '';
-               sortedDates.forEach((date, index) => {
-                   const dayData = exercisesByDate[date];
-                   
-                   // Add day divider
-                   historyDiv.innerHTML += `
-                       <div class="day-divider">
-                           <div class="day-divider-line"></div>
-                           <div class="day-divider-text">
-                               ${dayData.dayName ? `🏋️ ${dayData.dayName}` : '📅 Allenamento'}
-                               <div class="day-divider-date">${date}</div>
-                           </div>
-                       </div>
-                   `;
-                   
-                   // Sort exercises by timestamp
-                   dayData.exercises.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                   
-                   // Add exercises
-                   dayData.exercises.forEach((exercise) => {
-                       historyDiv.innerHTML += createExerciseCard(exercise, exercise.id);
-                   });
-               });
-           } catch (error) {
-               console.error('Error loading history:', error);
-               historyDiv.innerHTML = '<p style="color: red;">Errore nel caricamento dello storico</p>';
-               showToast('❌ Errore nel caricamento dello storico', 'error');
-           }
-       }
-
-       // Create Exercise Card
-       function createExerciseCard(exercise, id) {
-           return `
-               <div class="exercise-item new-item">
-                   <div class="exercise-header">
-                       <div class="exercise-name">${exercise.name || 'Esercizio'}</div>
-                       <button class="btn btn-danger" onclick="deleteExercise('${id}')">🗑️</button>
-                   </div>
-                   <div class="exercise-details">
-                       <div class="detail-item">
-                           <span class="detail-label">Peso:</span>
-                           <span class="detail-value">${exercise.weight} kg</span>
-                       </div>
-                       <div class="detail-item">
-                           <span class="detail-label">Rep:</span>
-                           <span class="detail-value">${exercise.reps}</span>
-                       </div>
-                       <div class="detail-item">
-                           <span class="detail-label">Serie:</span>
-                           <span class="detail-value">${exercise.sets}</span>
-                       </div>
-                   </div>
-                   ${exercise.comment ? `<div class="exercise-comment">💭 ${exercise.comment}</div>` : ''}
-               </div>
-           `;
-       }
-
-       // Delete Exercise
-       async function deleteExercise(id) {
-           if (!confirm('Eliminare questo esercizio?')) return;
-           
-           console.log('Deleting exercise:', id);
-           
-           try {
-               await db.collection('exercises').doc(id).delete();
-               console.log('Exercise deleted successfully');
-               showToast('✅ Esercizio eliminato', 'success');
-               
-               // Reload all data
-               loadTodayExercises();
-               loadExerciseHistory();
-               loadStats();
-               loadExerciseHistoryData();
-           } catch (error) {
-               console.error('Error deleting exercise:', error);
-               showToast('❌ Errore nell\'eliminazione: ' + error.message, 'error');
-           }
-       }
-
-       // Load Stats
-       async function loadStats() {
-           if (!currentUser) return;
-           
-           console.log('Loading stats...');
-           
-           try {
-               const snapshot = await db.collection('exercises')
-                   .where('userId', '==', currentUser.uid)
-                   .get();
-               
-               const workoutDays = new Set();
-               
-               snapshot.forEach((doc) => {
-                   const exercise = doc.data();
-                   if (exercise.dateString) {
-                       workoutDays.add(exercise.dateString);
-                   }
-               });
-               
-               document.getElementById('totalWorkouts').textContent = workoutDays.size;
-               
-               console.log('Stats loaded - Workouts:', workoutDays.size);
-           } catch (error) {
-               console.error('Error loading stats:', error);
-               showToast('❌ Errore nel caricamento delle statistiche', 'error');
-           }
-       }
-
-       // Load Exercise Options for Chart
-       async function loadExerciseOptions() {
-           if (!currentUser) return;
-           
-           console.log('Loading exercise options...');
-           
-           try {
-               const snapshot = await db.collection('exercises')
-                   .where('userId', '==', currentUser.uid)
-                   .get();
-               
-               const exerciseNames = new Set();
-               snapshot.forEach((doc) => {
-                   const exercise = doc.data();
-                   if (exercise.name) {
-                       exerciseNames.add(exercise.name);
-                   }
-               });
-               
-               const select = document.getElementById('chartExercise');
-               select.innerHTML = '<option value="">Seleziona un esercizio...</option>';
-               
-               Array.from(exerciseNames).sort().forEach(name => {
-                   select.innerHTML += `<option value="${name}">${name}</option>`;
-               });
-               
-               console.log('Exercise options loaded:', exerciseNames.size);
-           } catch (error) {
-               console.error('Error loading exercise options:', error);
-           }
-       }
-
-       // Update Chart
-       async function updateChart() {
-           const exerciseName = document.getElementById('chartExercise').value;
-           if (!exerciseName || !currentUser) return;
-           
-           console.log('Updating chart for:', exerciseName);
-           
-           try {
-               const snapshot = await db.collection('exercises')
-                   .where('userId', '==', currentUser.uid)
-                   .where('name', '==', exerciseName)
-                   .get();
-               
-               // Sort by timestamp
-               const exercises = [];
-               snapshot.forEach((doc) => {
-                   exercises.push(doc.data());
-               });
-               exercises.sort((a, b) => (a.timestamp || 0) - (a.timestamp || 0));
-               
-               const labels = [];
-               const weights = [];
-               
-               exercises.forEach((exercise) => {
-                   labels.push(exercise.dateString || 'N/A');
-                   weights.push(exercise.weight || 0);
-               });
-               
-               const ctx = document.getElementById('progressChart').getContext('2d');
-               
-               if (progressChart) {
-                   progressChart.destroy();
-               }
-               
-               progressChart = new Chart(ctx, {
-                   type: 'line',
-                   data: {
-                       labels: labels,
-                       datasets: [
-                           {
-                               label: 'Peso (kg)',
-                               data: weights,
-                               borderColor: '#6366f1',
-                               backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                               tension: 0.4,
-                               fill: true,
-                               pointBackgroundColor: '#6366f1',
-                               pointBorderColor: '#fff',
-                               pointBorderWidth: 2,
-                               pointRadius: 6,
-                               pointHoverRadius: 8
-                           }
-                       ]
-                   },
-                   options: {
-                       responsive: true,
-                       maintainAspectRatio: false,
-                       interaction: {
-                           mode: 'index',
-                           intersect: false,
-                       },
-                       plugins: {
-                           legend: {
-                               display: false
-                           },
-                           tooltip: {
-                               backgroundColor: '#1e293b',
-                               titleColor: '#fff',
-                               bodyColor: '#fff',
-                               padding: 12,
-                               cornerRadius: 8,
-                               callbacks: {
-                                   label: function(context) {
-                                       return `Peso: ${context.parsed.y} kg`;
-                                   }
-                               }
-                           }
-                       },
-                       scales: {
-                           y: {
-                               beginAtZero: false,
-                               title: {
-                                   display: true,
-                                   text: 'Peso (kg)',
-                                   color: '#6b7280'
-                               },
-                               grid: {
-                                   color: 'rgba(0, 0, 0, 0.05)'
-                               },
-                               ticks: {
-                                   callback: function(value) {
-                                       return value + ' kg';
-                                   }
-                               }
-                           },
-                           x: {
-                               grid: {
-                                   display: false
-                               },
-                               ticks: {
-                                   maxRotation: 30,
-                                   minRotation: 30,
-                                   autoSkip: true,
-                                   maxTicksLimit: 10,
-                                   font: {
-                                       size: 11
-                                   }
-                               }
-                           }
-                       },
-                       layout: {
-                           padding: {
-                               bottom: 20
-                           }
-                       }
-                   }
-               });
-               
-               console.log('Chart updated with', exercises.length, 'data points');
-           } catch (error) {
-               console.error('Error updating chart:', error);
-               showToast('❌ Errore nel caricamento del grafico', 'error');
-           }
-       }
-       
-       // --- Friends Functions ---
-
-       // Send Friend Request
-       document.getElementById('addFriendForm').addEventListener('submit', async (e) => {
-           e.preventDefault();
-           const friendEmail = document.getElementById('friendEmail').value.trim().toLowerCase(); // <-- CORREZIONE: Converti in minuscolo
-           if (!friendEmail || !currentUser) return;
-
-           if (friendEmail === currentUser.email.toLowerCase()) {
-               showToast('🤔 Non puoi aggiungere te stesso!', 'error');
-               return;
-           }
-
-           try {
-               // Find user by email
-               const usersRef = db.collection('users');
-               const snapshot = await usersRef.where('email', '==', friendEmail).get();
-
-               if (snapshot.empty) {
-                   showToast('❌ Utente non trovato.', 'error');
-                   return;
-               }
-
-               const friendId = snapshot.docs[0].id;
-               
-               // --- NUOVO CONTROLLO ---
-               // Check if already friends
-               const friendDoc = await db.collection('users').doc(currentUser.uid).collection('friends').doc(friendId).get();
-               if (friendDoc.exists) {
-                   showToast('🧑‍🤝‍🧑 Siete già amici.', 'warning');
-                   return;
-               }
-               
-               // Check if a request is already pending (either way)
-               const requestQuery1 = db.collection('friendRequests')
-                   .where('senderId', '==', currentUser.uid)
-                   .where('receiverId', '==', friendId)
-                   .where('status', '==', 'pending');
-               
-               const requestQuery2 = db.collection('friendRequests')
-                   .where('senderId', '==', friendId)
-                   .where('receiverId', '==', currentUser.uid)
-                   .where('status', '==', 'pending');
-
-               const [requestSnapshot1, requestSnapshot2] = await Promise.all([requestQuery1.get(), requestQuery2.get()]);
-
-               if (!requestSnapshot1.empty || !requestSnapshot2.empty) {
-                   showToast('⏳ Una richiesta è già in sospeso.', 'warning');
-                   return;
-               }
-               // --- FINE NUOVO CONTROLLO ---
-
-
-               // Create friend request
-               await db.collection('friendRequests').add({
-                   senderId: currentUser.uid,
-                   senderName: currentUser.displayName,
-                   senderEmail: currentUser.email,
-                   receiverId: friendId,
-                   receiverEmail: friendEmail,
-                   status: 'pending',
-                   createdAt: firebase.firestore.FieldValue.serverTimestamp()
-               });
-
-               showToast('✅ Richiesta di amicizia inviata!', 'success');
-               document.getElementById('addFriendForm').reset();
-
-           } catch (error) {
-               console.error("Error sending friend request:", error);
-               showToast('❌ Errore durante l\'invio della richiesta.', 'error');
-           }
-       });
-
-       // Listen for incoming friend requests
-       function listenForFriendRequests() {
-           if (!currentUser) return;
-
-           db.collection('friendRequests')
-             .where('receiverId', '==', currentUser.uid)
-             .where('status', '==', 'pending')
-             .onSnapshot(snapshot => {
-                 const requestsDiv = document.getElementById('friendRequests');
-                 if (snapshot.empty) {
-                     requestsDiv.innerHTML = `<div class="empty-state"><div class="empty-icon">🤷</div><div class="empty-text">Nessuna richiesta</div></div>`;
-                     return;
-                 }
-                 
-                 requestsDiv.innerHTML = '';
-                 snapshot.forEach(doc => {
-                     const request = doc.data();
-                     const requestEl = document.createElement('div');
-                     requestEl.className = 'friend-request-item';
-                     requestEl.innerHTML = `
-                         <div class="friend-info">
-                              <div class="friend-avatar">${request.senderName[0].toUpperCase()}</div>
-                              <div>
-                                 <div class="friend-name">${request.senderName}</div>
-                                 <div class="friend-email">${request.senderEmail}</div>
-                              </div>
-                         </div>
-                         <div class="friend-actions">
-                             <button class="btn btn-success" onclick="handleFriendRequest('${doc.id}', true)">Accetta</button>
-                             <button class="btn btn-danger" onclick="handleFriendRequest('${doc.id}', false)">Rifiuta</button>
-                         </div>
-                     `;
-                     requestsDiv.appendChild(requestEl);
-                 });
-             });
-       }
-
-       // Handle Friend Request (Accept/Decline)
-       async function handleFriendRequest(requestId, accept) {
-           const requestRef = db.collection('friendRequests').doc(requestId);
-           
-           try {
-               if (accept) {
-                   const requestDoc = await requestRef.get();
-                   const requestData = requestDoc.data();
-
-                   // Add to friends subcollection for both users
-                   const batch = db.batch();
-                   const userFriendsRef = db.collection('users').doc(currentUser.uid).collection('friends').doc(requestData.senderId);
-                   batch.set(userFriendsRef, { friendId: requestData.senderId, friendName: requestData.senderName, friendEmail: requestData.senderEmail, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-
-                   const senderFriendsRef = db.collection('users').doc(requestData.senderId).collection('friends').doc(currentUser.uid);
-                   batch.set(senderFriendsRef, { friendId: currentUser.uid, friendName: currentUser.displayName, friendEmail: currentUser.email, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-
-                   // Update request status to 'accepted'
-                   batch.update(requestRef, { status: 'accepted' });
-
-                   await batch.commit();
-                   showToast('🎉 Amicizia accettata!', 'success');
-               } else {
-                   // Update request status to 'declined'
-                   await requestRef.update({ status: 'declined' });
-                   showToast('👍 Richiesta rifiutata.', 'success');
-               }
-               // No need to call loadFriends() here, onSnapshot will handle it automatically
-           } catch (error) {
-               console.error("Error handling friend request:", error);
-               showToast('❌ Errore nella gestione della richiesta.', 'error');
-           }
-       }
-
-       // Load Friends List
-       function loadFriends() {
-           if (!currentUser) return;
-
-           db.collection('users').doc(currentUser.uid).collection('friends')
-             .onSnapshot(snapshot => {
-                 const friendsDiv = document.getElementById('friendsList');
-                 if (snapshot.empty) {
-                     friendsDiv.innerHTML = `<div class="empty-state"><div class="empty-icon">🧑‍🤝‍🧑</div><div class="empty-text">Nessun amico</div><div class="empty-subtext">Aggiungi amici per vedere i loro progressi!</div></div>`;
-                     return;
-                 }
-                 
-                 friendsDiv.innerHTML = '';
-                 snapshot.forEach(doc => {
-                     const friend = doc.data();
-                     const friendEl = document.createElement('div');
-                     friendEl.className = 'friend-item';
-                     friendEl.innerHTML = `
-                         <div class="friend-info">
-                              <div class="friend-avatar">${friend.friendName[0].toUpperCase()}</div>
-                              <div>
-                                 <div class="friend-name">${friend.friendName}</div>
-                                 <div class="friend-email">${friend.friendEmail}</div>
-                              </div>
-                         </div>
-                         <div class="friend-actions">
-                             <button class="btn btn-primary" onclick="viewFriendExercises('${friend.friendId}', '${friend.friendName}')">Vedi Allenamenti</button>
-                         </div>
-                     `;
-                     friendsDiv.appendChild(friendEl);
-                 });
-             });
-       }
-       
-       // View Friend's Exercises
-       async function viewFriendExercises(friendId, friendName) {
-           const modalContent = document.getElementById('friendExercisesContent');
-           document.getElementById('friendExercisesTitle').textContent = `Allenamenti di ${friendName}`;
-           modalContent.innerHTML = '<div class="spinner"></div>';
-           document.getElementById('friendExercisesModal').classList.add('active');
-
-           try {
-               const snapshot = await db.collection('exercises')
-                   .where('userId', '==', friendId)
-                   .orderBy('timestamp', 'desc')
-                   .limit(20) // Limit to last 20 exercises for performance
-                   .get();
-
-               if (snapshot.empty) {
-                   modalContent.innerHTML = `<div class="empty-state"><div class="empty-icon">😴</div><div class="empty-text">Nessun allenamento recente</div></div>`;
-                   return;
-               }
-               
-               modalContent.innerHTML = '';
-               snapshot.forEach(doc => {
-                   const exercise = doc.data();
-                   const exerciseEl = document.createElement('div');
-                   exerciseEl.className = 'exercise-item';
-                   exerciseEl.innerHTML = `
-                       <div class="exercise-header">
-                           <div class="exercise-name">${exercise.name}</div>
-                           <div class="exercise-date">${exercise.dateString}</div>
-                       </div>
-                       <div class="exercise-details">
-                           <div class="detail-item">
-                               <span class="detail-label">Peso:</span> <span class="detail-value">${exercise.weight} kg</span>
-                           </div>
-                           <div class="detail-item">
-                               <span class="detail-label">Rep:</span> <span class="detail-value">${exercise.reps}</span>
-                           </div>
-                            <div class="detail-item">
-                               <span class="detail-label">Serie:</span> <span class="detail-value">${exercise.sets}</span>
-                           </div>
-                       </div>
-                       ${exercise.comment ? `<div class="exercise-comment">💭 ${exercise.comment}</div>` : ''}
-                   `;
-                   modalContent.appendChild(exerciseEl);
-               });
-
-           } catch (error) {
-               console.error("Error fetching friend's exercises:", error);
-               modalContent.innerHTML = `<p style="color: red;">Errore nel caricamento degli allenamenti.</p>`;
-               showToast("❌ Errore nel caricamento degli allenamenti dell'amico.", "error");
-           }
-       }
-
-
-       // Show Toast
-       function showToast(message, type = 'info') {
-           const toast = document.getElementById('toast');
-           toast.textContent = message;
-           toast.className = 'toast show';
-           if (type) {
-               toast.classList.add(type);
-           }
-           
-           setTimeout(() => {
-               toast.classList.remove('show');
-           }, 3000);
-       }
-
-       // Initialize app
-       console.log('App initialized');
-       console.log('Firebase Config:', firebaseConfig.projectId);
-   </script>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <div class="logo-icon">💪</div>
+                <h1 class="app-title">GymTracker Pro</h1>
+                <p style="color: #6b7280; margin-top: 10px;">Il tuo compagno di allenamento</p>
+            </div>
+            <button id="googleLogin" class="google-btn">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Accedi con Google
+            </button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" style="display: none;">
+        <div class="container">
+            <!-- Header -->
+            <div class="header">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <div class="user-name" id="userName">Utente</div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Esci</button>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab(event, 'workout')">
+                    📝 Allenamento
+                </button>
+                <button class="nav-tab" onclick="switchTab(event, 'history')">
+                    📊 Storico
+                </button>
+                <button class="nav-tab" onclick="switchTab(event, 'stats')">
+                    📈 Statistiche
+                </button>
+            </div>
+
+            <!-- Workout Section -->
+            <div id="workoutSection" class="content-section active">
+                <div class="card">
+                    <h2 style="margin-bottom: 20px; color: var(--dark);">Nuovo Esercizio</h2>
+                    
+                    <!-- Day Name Input -->
+                    <div class="form-group">
+                        <label for="dayName">Nome della Giornata (opzionale)</label>
+                        <div class="input-with-btn">
+                            <input type="text" id="dayName" placeholder="Es: Leg Day, Push Day...">
+                            <button type="button" class="select-btn" onclick="openDayNameModal()">📋 Scegli</button>
+                        </div>
+                    </div>
+
+                    <form id="exerciseForm">
+                        <div class="form-group">
+                            <label for="exerciseName">Nome Esercizio</label>
+                            <div class="input-with-btn">
+                                <input type="text" id="exerciseName" placeholder="Es: Panca piana" required>
+                                <button type="button" class="select-btn" onclick="openExerciseModal()">🏋️ Scegli</button>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label for="weight">Peso (kg)</label>
+                                <input type="number" id="weight" step="0.5" placeholder="50" required>
+                                <div id="weightSuggestion" class="suggestion-badge">
+                                    💡 Suggerimento: <span id="suggestedWeight"></span> kg
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reps">Ripetizioni</label>
+                                <input type="number" id="reps" placeholder="10" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="sets">Serie</label>
+                            <input type="number" id="sets" placeholder="3" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="comment">Commento (opzionale)</label>
+                            <textarea id="comment" placeholder="Note sull'esercizio..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">
+                            ➕ Aggiungi Esercizio
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Today's Exercises -->
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; color: var(--dark);">Esercizi di Oggi</h3>
+                    <div id="todayExercises">
+                        <div class="empty-state">
+                            <div class="empty-icon">🏋️‍♂️</div>
+                            <div class="empty-text">Nessun esercizio oggi</div>
+                            <div class="empty-subtext">Inizia ad aggiungere i tuoi esercizi!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div id="historySection" class="content-section">
+                <div class="card">
+                    <h2 style="margin-bottom: 20px; color: var(--dark);">Storico Allenamenti</h2>
+                    <div id="exerciseHistory">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div id="statsSection" class="content-section">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalWorkouts">0</div>
+                        <div class="stat-label">Allenamenti Totali</div>
+                    </div>
+                </div>
+
+                <!-- Exercise Selector -->
+                <div class="card">
+                    <div class="form-group">
+                        <label for="chartExercise">Seleziona Esercizio per il Grafico</label>
+                        <select id="chartExercise" onchange="updateChart()">
+                            <option value="">Seleziona un esercizio...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Progressi nel Tempo</h3>
+                    </div>
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercise Selection Modal -->
+    <div id="exerciseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🏋️ Seleziona Esercizio</h3>
+                <button class="close-modal" onclick="closeModal('exerciseModal')">×</button>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="exerciseSearch" placeholder="🔍 Cerca esercizio..." onkeyup="filterExercises()">
+            </div>
+
+            <button class="add-new-btn" onclick="addNewExercise()">➕ Aggiungi Nuovo Esercizio</button>
+            
+            <div class="selection-list" id="exerciseList">
+                <!-- Exercise items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Day Name Selection Modal -->
+    <div id="dayNameModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📅 Seleziona Nome Giornata</h3>
+                <button class="close-modal" onclick="closeModal('dayNameModal')">×</button>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="dayNameSearch" placeholder="🔍 Cerca o inserisci nuovo nome..." onkeyup="filterDayNames()">
+            </div>
+
+            <button class="add-new-btn" onclick="addNewDayName()">➕ Usa Questo Nome</button>
+            
+            <div class="selection-list" id="dayNameList">
+                <!-- Day name items will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Firebase Configuration - INSERISCI LE TUE CREDENZIALI QUI
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUTGmVgzkayqLckAMMZrWrREhrNs4OhzM",
+            authDomain: "gymdata-5ca2d.firebaseapp.com",
+            projectId: "gymdata-5ca2d",
+            storageBucket: "gymdata-5ca2d.firebasestorage.app",
+            messagingSenderId: "970351774367",
+            appId: "1:970351774367:web:17617175fcf922d37930aa"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        let currentUser = null;
+        let progressChart = null;
+        let exerciseHistory = [];
+        let uniqueExercises = {};
+        let uniqueDayNames = new Set();
+
+        // Helper function per formattare la data
+        function formatDate(date) {
+            const d = new Date(date);
+            return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+        }
+
+        // Helper function per ottenere la data di oggi
+        function getTodayString() {
+            return formatDate(new Date());
+        }
+
+        // Google Sign In
+        document.getElementById('googleLogin').addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .then((result) => {
+                    console.log('Login successful:', result.user);
+                    showToast('✅ Accesso effettuato con successo!', 'success');
+                })
+                .catch((error) => {
+                    console.error('Login error:', error);
+                    showToast('❌ Errore durante il login: ' + error.message, 'error');
+                });
+        });
+
+        // Auth State Observer
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                
+                // Update user info
+                document.getElementById('userName').textContent = user.displayName || 'Utente';
+                document.getElementById('userAvatar').textContent = (user.displayName || 'U')[0].toUpperCase();
+                
+                // Load initial data
+                loadTodayExercises();
+                loadStats();
+                loadExerciseHistoryData();
+                
+                console.log('User logged in:', user.uid);
+            } else {
+                currentUser = null;
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+            }
+        });
+
+        // Logout
+        function logout() {
+            if (confirm('Vuoi davvero uscire?')) {
+                auth.signOut()
+                    .then(() => {
+                        showToast('👋 Arrivederci!', 'success');
+                    })
+                    .catch((error) => {
+                        console.error('Logout error:', error);
+                        showToast('❌ Errore durante il logout', 'error');
+                    });
+            }
+        }
+
+        // Switch Tab
+        function switchTab(event, tab) {
+            // Update tabs
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update sections
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(tab + 'Section').classList.add('active');
+            
+            // Load data based on tab
+            if (tab === 'history') {
+                loadExerciseHistory();
+            } else if (tab === 'stats') {
+                loadStats();
+                loadExerciseOptions();
+            } else if (tab === 'workout') {
+                loadTodayExercises();
+            }
+        }
+
+        // Modal Functions
+        function openExerciseModal() {
+            loadExerciseList();
+            document.getElementById('exerciseModal').classList.add('active');
+        }
+
+        function openDayNameModal() {
+            loadDayNameList();
+            document.getElementById('dayNameModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Load Exercise List for Modal
+        function loadExerciseList() {
+            const exerciseList = document.getElementById('exerciseList');
+            exerciseList.innerHTML = '';
+            
+            // Group exercises by name and get latest data for each
+            const exerciseGroups = {};
+            exerciseHistory.forEach(exercise => {
+                if (!exercise.name) return;
+                if (!exerciseGroups[exercise.name] || exerciseGroups[exercise.name].timestamp < exercise.timestamp) {
+                    exerciseGroups[exercise.name] = exercise;
+                }
+            });
+            
+            // Sort by name
+            const sortedExercises = Object.values(exerciseGroups).sort((a, b) => a.name.localeCompare(b.name));
+            
+            if (sortedExercises.length === 0) {
+                exerciseList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <div class="empty-text">Nessun esercizio salvato</div>
+                        <div class="empty-subtext">Inizia ad aggiungere nuovi esercizi!</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            sortedExercises.forEach(exercise => {
+                const item = document.createElement('div');
+                item.className = 'selection-item';
+                item.innerHTML = `
+                    <div class="selection-item-header">
+                        <div class="selection-item-name">${exercise.name}</div>
+                        <div class="selection-item-date">${exercise.dateString || ''}</div>
+                    </div>
+                    <div class="selection-item-details">
+                        <div class="selection-item-detail">
+                            <span>💪</span>
+                            <span>${exercise.weight} kg</span>
+                        </div>
+                        <div class="selection-item-detail">
+                            <span>🔄</span>
+                            <span>${exercise.reps} reps</span>
+                        </div>
+                        <div class="selection-item-detail">
+                            <span>📊</span>
+                            <span>${exercise.sets} serie</span>
+                        </div>
+                    </div>
+                `;
+                item.onclick = () => selectExercise(exercise);
+                exerciseList.appendChild(item);
+            });
+        }
+
+        // Filter Exercises in Modal
+        function filterExercises() {
+            const searchTerm = document.getElementById('exerciseSearch').value.toLowerCase();
+            const items = document.querySelectorAll('#exerciseList .selection-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.selection-item-name').textContent.toLowerCase();
+                if (name.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Select Exercise from Modal
+        function selectExercise(exercise) {
+            document.getElementById('exerciseName').value = exercise.name;
+            
+            // Check if should suggest weight increase
+            if (exercise.reps >= 8) {
+                const suggestedWeight = calculateWeightSuggestion(exercise.weight, exercise.reps);
+                document.getElementById('suggestedWeight').textContent = suggestedWeight;
+                document.getElementById('weightSuggestion').classList.add('show');
+                document.getElementById('weight').value = suggestedWeight;
+            } else {
+                document.getElementById('weight').value = exercise.weight;
+                document.getElementById('weightSuggestion').classList.remove('show');
+            }
+            
+            document.getElementById('reps').value = exercise.reps;
+            document.getElementById('sets').value = exercise.sets;
+            
+            closeModal('exerciseModal');
+            showToast('✅ Esercizio selezionato', 'success');
+        }
+
+        // Add New Exercise from Modal
+        function addNewExercise() {
+            const searchValue = document.getElementById('exerciseSearch').value.trim();
+            if (searchValue) {
+                document.getElementById('exerciseName').value = searchValue;
+                closeModal('exerciseModal');
+                showToast('✅ Nuovo esercizio aggiunto', 'success');
+            } else {
+                showToast('⚠️ Inserisci il nome dell\'esercizio', 'error');
+            }
+        }
+
+        // Load Day Name List for Modal
+        function loadDayNameList() {
+            const dayNameList = document.getElementById('dayNameList');
+            dayNameList.innerHTML = '';
+            
+            if (uniqueDayNames.size === 0) {
+                dayNameList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📅</div>
+                        <div class="empty-text">Nessun nome salvato</div>
+                        <div class="empty-subtext">Inserisci un nuovo nome per la giornata!</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            Array.from(uniqueDayNames).sort().forEach(name => {
+                const item = document.createElement('div');
+                item.className = 'selection-item';
+                item.innerHTML = `
+                    <div class="selection-item-header">
+                        <div class="selection-item-name">📋 ${name}</div>
+                    </div>
+                `;
+                item.onclick = () => selectDayName(name);
+                dayNameList.appendChild(item);
+            });
+        }
+
+        // Filter Day Names in Modal
+        function filterDayNames() {
+            const searchTerm = document.getElementById('dayNameSearch').value.toLowerCase();
+            const items = document.querySelectorAll('#dayNameList .selection-item');
+            
+            items.forEach(item => {
+                const name = item.querySelector('.selection-item-name').textContent.toLowerCase();
+                if (name.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Select Day Name from Modal
+        function selectDayName(name) {
+            document.getElementById('dayName').value = name;
+            closeModal('dayNameModal');
+            showToast('✅ Nome giornata selezionato', 'success');
+        }
+
+        // Add New Day Name from Modal
+        function addNewDayName() {
+            const searchValue = document.getElementById('dayNameSearch').value.trim();
+            if (searchValue) {
+                document.getElementById('dayName').value = searchValue;
+                closeModal('dayNameModal');
+                showToast('✅ Nome giornata impostato', 'success');
+            } else {
+                showToast('⚠️ Inserisci un nome per la giornata', 'error');
+            }
+        }
+
+        // Load exercise history data for suggestions
+        async function loadExerciseHistoryData() {
+            if (!currentUser) return;
+            
+            try {
+                const snapshot = await db.collection('exercises')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+                
+                exerciseHistory = [];
+                uniqueExercises = {};
+                uniqueDayNames = new Set();
+                
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    exerciseHistory.push(data);
+                    
+                    if (data.name) {
+                        if (!uniqueExercises[data.name] || uniqueExercises[data.name].timestamp < data.timestamp) {
+                            uniqueExercises[data.name] = data;
+                        }
+                    }
+                    
+                    if (data.dayName) {
+                        uniqueDayNames.add(data.dayName);
+                    }
+                });
+                
+                console.log('Loaded exercise history:', exerciseHistory.length, 'exercises');
+                
+            } catch (error) {
+                console.error('Error loading exercise history:', error);
+            }
+        }
+
+        // Calculate weight suggestion
+        function calculateWeightSuggestion(lastWeight, lastReps) {
+            if (lastReps >= 8) {
+                let increase = lastWeight < 50 ? 0.02 : 0.025; // 2% if < 50kg, 2.5% if >= 50kg
+                let suggestedWeight = lastWeight * (1 + increase);
+                // Round to nearest 0.5
+                return Math.round(suggestedWeight * 2) / 2;
+            }
+            return lastWeight;
+        }
+
+        // Update weight suggestion when exercise name changes manually
+        document.getElementById('exerciseName').addEventListener('input', function() {
+            const exerciseName = this.value.trim();
+            if (!exerciseName) {
+                document.getElementById('weightSuggestion').classList.remove('show');
+                return;
+            }
+            
+            // Find exercise in history
+            if (uniqueExercises[exerciseName]) {
+                const exercise = uniqueExercises[exerciseName];
+                
+                if (exercise.reps >= 8) {
+                    const suggestedWeight = calculateWeightSuggestion(exercise.weight, exercise.reps);
+                    document.getElementById('suggestedWeight').textContent = suggestedWeight;
+                    document.getElementById('weightSuggestion').classList.add('show');
+                    document.getElementById('weight').value = suggestedWeight;
+                } else {
+                    document.getElementById('weight').value = exercise.weight;
+                    document.getElementById('weightSuggestion').classList.remove('show');
+                }
+                
+                document.getElementById('reps').value = exercise.reps;
+                document.getElementById('sets').value = exercise.sets;
+            } else {
+                document.getElementById('weightSuggestion').classList.remove('show');
+            }
+        });
+
+        // Exercise Form Submit
+        document.getElementById('exerciseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showToast('❌ Devi effettuare il login', 'error');
+                return;
+            }
+            
+            const now = new Date();
+            const exerciseData = {
+                userId: currentUser.uid,
+                name: document.getElementById('exerciseName').value.trim(),
+                weight: parseFloat(document.getElementById('weight').value),
+                reps: parseInt(document.getElementById('reps').value),
+                sets: parseInt(document.getElementById('sets').value),
+                comment: document.getElementById('comment').value.trim(),
+                dayName: document.getElementById('dayName').value.trim(),
+                timestamp: now.getTime(),
+                dateString: formatDate(now),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            console.log('Saving exercise:', exerciseData);
+            
+            try {
+                const docRef = await db.collection('exercises').add(exerciseData);
+                console.log('Exercise saved with ID:', docRef.id);
+                showToast('✅ Esercizio aggiunto!', 'success');
+                document.getElementById('exerciseForm').reset();
+                document.getElementById('weightSuggestion').classList.remove('show');
+                
+                // Keep day name if it exists
+                if (exerciseData.dayName) {
+                    document.getElementById('dayName').value = exerciseData.dayName;
+                }
+                
+                // Reload data
+                loadTodayExercises();
+                loadStats();
+                loadExerciseHistoryData();
+            } catch (error) {
+                console.error('Error adding exercise:', error);
+                showToast('❌ Errore nel salvataggio: ' + error.message, 'error');
+            }
+        });
+
+        // Load Today's Exercises
+        async function loadTodayExercises() {
+            if (!currentUser) return;
+            
+            const today = getTodayString();
+            const todayExercisesDiv = document.getElementById('todayExercises');
+            
+            console.log('Loading exercises for today:', today);
+            
+            try {
+                const snapshot = await db.collection('exercises')
+                    .where('userId', '==', currentUser.uid)
+                    .where('dateString', '==', today)
+                    .get();
+                
+                console.log('Found exercises:', snapshot.size);
+                
+                if (snapshot.empty) {
+                    todayExercisesDiv.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">🏋️‍♂️</div>
+                            <div class="empty-text">Nessun esercizio oggi</div>
+                            <div class="empty-subtext">Inizia ad aggiungere i tuoi esercizi!</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Sort exercises by timestamp
+                const exercises = [];
+                snapshot.forEach((doc) => {
+                    exercises.push({ id: doc.id, ...doc.data() });
+                });
+                exercises.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                
+                todayExercisesDiv.innerHTML = '';
+                exercises.forEach((exercise) => {
+                    todayExercisesDiv.innerHTML += createExerciseCard(exercise, exercise.id);
+                });
+            } catch (error) {
+                console.error('Error loading today exercises:', error);
+                todayExercisesDiv.innerHTML = '<p style="color: red;">Errore nel caricamento</p>';
+                showToast('❌ Errore nel caricamento degli esercizi', 'error');
+            }
+        }
+
+        // Load Exercise History
+        async function loadExerciseHistory() {
+            if (!currentUser) return;
+            
+            const historyDiv = document.getElementById('exerciseHistory');
+            historyDiv.innerHTML = '<div class="spinner"></div>';
+            
+            console.log('Loading exercise history...');
+            
+            try {
+                const snapshot = await db.collection('exercises')
+                    .where('userId', '==', currentUser.uid)
+                    .limit(100)
+                    .get();
+                
+                console.log('History exercises found:', snapshot.size);
+                
+                if (snapshot.empty) {
+                    historyDiv.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <div class="empty-text">Nessun esercizio registrato</div>
+                            <div class="empty-subtext">Inizia ad allenarti!</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Sort exercises by timestamp and group by date
+                const exercisesByDate = {};
+                snapshot.forEach((doc) => {
+                    const data = { id: doc.id, ...doc.data() };
+                    const date = data.dateString || 'Data sconosciuta';
+                    if (!exercisesByDate[date]) {
+                        exercisesByDate[date] = {
+                            exercises: [],
+                            dayName: data.dayName || ''
+                        };
+                    }
+                    exercisesByDate[date].exercises.push(data);
+                    if (data.dayName) {
+                        exercisesByDate[date].dayName = data.dayName;
+                    }
+                });
+                
+                // Sort dates in descending order
+                const sortedDates = Object.keys(exercisesByDate).sort((a, b) => {
+                    const dateA = a.split('/').reverse().join('');
+                    const dateB = b.split('/').reverse().join('');
+                    return dateB.localeCompare(dateA);
+                });
+                
+                historyDiv.innerHTML = '';
+                sortedDates.forEach((date, index) => {
+                    const dayData = exercisesByDate[date];
+                    
+                    // Add day divider
+                    historyDiv.innerHTML += `
+                        <div class="day-divider">
+                            <div class="day-divider-line"></div>
+                            <div class="day-divider-text">
+                                ${dayData.dayName ? `🏋️ ${dayData.dayName}` : '📅 Allenamento'}
+                                <div class="day-divider-date">${date}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Sort exercises by timestamp
+                    dayData.exercises.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    
+                    // Add exercises
+                    dayData.exercises.forEach((exercise) => {
+                        historyDiv.innerHTML += createExerciseCard(exercise, exercise.id);
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading history:', error);
+                historyDiv.innerHTML = '<p style="color: red;">Errore nel caricamento dello storico</p>';
+                showToast('❌ Errore nel caricamento dello storico', 'error');
+            }
+        }
+
+        // Create Exercise Card
+        function createExerciseCard(exercise, id) {
+            return `
+                <div class="exercise-item new-item">
+                    <div class="exercise-header">
+                        <div class="exercise-name">${exercise.name || 'Esercizio'}</div>
+                        <button class="btn btn-danger" onclick="deleteExercise('${id}')">🗑️</button>
+                    </div>
+                    <div class="exercise-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Peso:</span>
+                            <span class="detail-value">${exercise.weight} kg</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Rep:</span>
+                            <span class="detail-value">${exercise.reps}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Serie:</span>
+                            <span class="detail-value">${exercise.sets}</span>
+                        </div>
+                    </div>
+                    ${exercise.comment ? `<div class="exercise-comment">💭 ${exercise.comment}</div>` : ''}
+                </div>
+            `;
+        }
+
+        // Delete Exercise
+        async function deleteExercise(id) {
+            if (!confirm('Eliminare questo esercizio?')) return;
+            
+            console.log('Deleting exercise:', id);
+            
+            try {
+                await db.collection('exercises').doc(id).delete();
+                console.log('Exercise deleted successfully');
+                showToast('✅ Esercizio eliminato', 'success');
+                
+                // Reload all data
+                loadTodayExercises();
+                loadExerciseHistory();
+                loadStats();
+                loadExerciseHistoryData();
+            } catch (error) {
+                console.error('Error deleting exercise:', error);
+                showToast('❌ Errore nell\'eliminazione: ' + error.message, 'error');
+            }
+        }
+
+        // Load Stats
+        async function loadStats() {
+            if (!currentUser) return;
+            
+            console.log('Loading stats...');
+            
+            try {
+                const snapshot = await db.collection('exercises')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+                
+                const workoutDays = new Set();
+                
+                snapshot.forEach((doc) => {
+                    const exercise = doc.data();
+                    if (exercise.dateString) {
+                        workoutDays.add(exercise.dateString);
+                    }
+                });
+                
+                document.getElementById('totalWorkouts').textContent = workoutDays.size;
+                
+                console.log('Stats loaded - Workouts:', workoutDays.size);
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                showToast('❌ Errore nel caricamento delle statistiche', 'error');
+            }
+        }
+
+        // Load Exercise Options for Chart
+        async function loadExerciseOptions() {
+            if (!currentUser) return;
+            
+            console.log('Loading exercise options...');
+            
+            try {
+                const snapshot = await db.collection('exercises')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+                
+                const exerciseNames = new Set();
+                snapshot.forEach((doc) => {
+                    const exercise = doc.data();
+                    if (exercise.name) {
+                        exerciseNames.add(exercise.name);
+                    }
+                });
+                
+                const select = document.getElementById('chartExercise');
+                select.innerHTML = '<option value="">Seleziona un esercizio...</option>';
+                
+                Array.from(exerciseNames).sort().forEach(name => {
+                    select.innerHTML += `<option value="${name}">${name}</option>`;
+                });
+                
+                console.log('Exercise options loaded:', exerciseNames.size);
+            } catch (error) {
+                console.error('Error loading exercise options:', error);
+            }
+        }
+
+        // Update Chart
+        async function updateChart() {
+            const exerciseName = document.getElementById('chartExercise').value;
+            if (!exerciseName || !currentUser) return;
+            
+            console.log('Updating chart for:', exerciseName);
+            
+            try {
+                const snapshot = await db.collection('exercises')
+                    .where('userId', '==', currentUser.uid)
+                    .where('name', '==', exerciseName)
+                    .get();
+                
+                // Sort by timestamp
+                const exercises = [];
+                snapshot.forEach((doc) => {
+                    exercises.push(doc.data());
+                });
+                exercises.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                
+                const labels = [];
+                const weights = [];
+                
+                exercises.forEach((exercise) => {
+                    labels.push(exercise.dateString || 'N/A');
+                    weights.push(exercise.weight || 0);
+                });
+                
+                const ctx = document.getElementById('progressChart').getContext('2d');
+                
+                if (progressChart) {
+                    progressChart.destroy();
+                }
+                
+                progressChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Peso (kg)',
+                                data: weights,
+                                borderColor: '#6366f1',
+                                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                pointBackgroundColor: '#6366f1',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointRadius: 6,
+                                pointHoverRadius: 8
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#1e293b',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                padding: 12,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Peso: ${context.parsed.y} kg`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'Peso (kg)',
+                                    color: '#6b7280'
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + ' kg';
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    maxRotation: 30,
+                                    minRotation: 30,
+                                    autoSkip: true,
+                                    maxTicksLimit: 10,
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            }
+                        },
+                        layout: {
+                            padding: {
+                                bottom: 20
+                            }
+                        }
+                    }
+                });
+                
+                console.log('Chart updated with', exercises.length, 'data points');
+            } catch (error) {
+                console.error('Error updating chart:', error);
+                showToast('❌ Errore nel caricamento del grafico', 'error');
+            }
+        }
+
+        // Show Toast
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show';
+            if (type) {
+                toast.classList.add(type);
+            }
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize app
+        console.log('App initialized');
+        console.log('Firebase Config:', firebaseConfig.projectId);
+    </script>
 </body>
 </html>
